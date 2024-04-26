@@ -1,6 +1,11 @@
+import Navbar from "../Navbar/Navbar";
+
 const Profile = () => {
     return (  
-        <h1>Profile</h1>
+        <div>
+            <Navbar/>
+            <h1>Profile</h1>
+        </div>
     );
 }
  
