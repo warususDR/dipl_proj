@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { home_route, profile_route, signup_route, login_route } from "../Router/Routes";
 import { TextField, Button, AppBar, Toolbar, Typography, IconButton, InputAdornment } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import Person2Icon from '@mui/icons-material/Person2';
 
 const Navbar = () => {
 
@@ -64,9 +65,9 @@ const Navbar = () => {
                 <Button color='inherit' sx={{ fontFamily: 'Quicksand' }} component={Link} to={home_route}>
                     Home
                 </Button>
-                <Button color='inherit' sx={{ fontFamily: 'Quicksand' }} component={Link} to={profile_route}>
-                    Profile
-                </Button>
+                <IconButton component={Link} to={profile_route}>
+                    <Person2Icon style={{ color: 'white' }} />
+                </IconButton>
                 <Button color='inherit' sx={{ fontFamily: 'Quicksand' }} component={Link} to={signup_route}>
                     Sign Up
                 </Button>

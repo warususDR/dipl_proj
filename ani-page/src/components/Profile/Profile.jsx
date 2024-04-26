@@ -1,10 +1,58 @@
 import Navbar from "../Navbar/Navbar";
+import { Box, Typography, Avatar } from "@mui/material";
 
 const Profile = () => {
-    return (  
+    const nickname = "AniMaster";
+    const email = "animaster@example.com";
+    const profilePicUrl = '';
+
+    return (
         <div>
-            <Navbar/>
-            <h1>Profile</h1>
+            <Navbar />
+            <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                    height: '40vh',
+                    padding: 3,
+                }}
+            >
+                <Typography variant="h4" sx={{ fontFamily: 'Quicksand', marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
+                    Your Profile
+                </Typography>
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    sx={{
+                        width: '80%',
+                        padding: 2,
+                        backgroundColor: 'rgba(25, 118, 210, 0.8)',
+                        borderRadius: 5,
+                        boxShadow: 3,
+                    }}>
+                    <Box display="flex" flexDirection="row" textAlign="center">
+                        <Avatar
+                        alt={nickname}
+                        src={profilePicUrl}
+                        sx={{
+                            width: 100,
+                            height: 100,
+                            marginRight: 4,
+                            marginBottom: 2
+                        }}/>
+                        <Typography variant="h6" sx={{ fontFamily: 'Quicksand', marginBottom: 1, color: 'white', fontSize: 40 }}>
+                            {nickname}
+                        </Typography>
+                    </Box>
+                    <Typography variant="h6" sx={{ fontFamily: 'Quicksand', color: 'white' }}>
+                        Email: {email}
+                    </Typography>
+                </Box>
+            </Box>
         </div>
     );
 }
