@@ -28,11 +28,16 @@ const Login = () => {
                     display="flex" 
                     flexDirection="column" 
                     justifyContent='center'>
-                    <CustomTextField placeholder="Enter email" autoComplete="email" onChange={setEmail}></CustomTextField>
-                    <CustomTextField placeholder="Enter password" autoComplete="password" onChange={setPassword}></CustomTextField>
+                    <CustomTextField placeholder="Enter email..." autoComplete="email" onChange={setEmail}></CustomTextField>
+                    <CustomTextField placeholder="Enter password..." autoComplete="password" onChange={setPassword}></CustomTextField>
                     <Button 
                     type="submit" 
-                    sx={{fontFamily: 'QuickSand', backgroundColor: 'rgba(255, 255, 255, 0.7)', margin: '16px'}}>
+                    sx={{fontFamily: 'QuickSand', 
+                         backgroundColor: 'rgba(255, 255, 255, 0.7)', 
+                         margin: '16px',
+                         '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                        },}}>
                         Log In
                     </Button>
                 </Box>
@@ -44,8 +49,7 @@ const Login = () => {
                         marginTop: 2 
                     }}
                     component={Link}
-                    to={signup_route}
-                >
+                    to={signup_route}>
                     Don't have an account? Click here to register
                 </Button>
             </Box>
