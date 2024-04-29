@@ -20,7 +20,7 @@ const ItemRow = () => {
             sx={{ width: '100%', overflowX: 'auto'}}>
     
             {itemList.map((item, index) => (
-               <ItemElem name={item.name} image={item.picture} item_index={index}></ItemElem>
+               <ItemElem key={index} name={item.name} image={item.picture} item_index={index}></ItemElem>
             ))}
         </Box>
     );

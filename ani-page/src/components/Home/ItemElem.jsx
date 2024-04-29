@@ -2,17 +2,16 @@ import { Typography, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { item_route } from "../Router/Routes";
 
-const ItemElem = ({name, image, item_index}) => {
+const ItemElem = ({name, image, item_id}) => {
 
     return (  
-        <Box component={Link} to={`${item_route}/${item_index}`}
-            key={item_index} 
+        <Box component={Link} to={`${item_route}/${item_id}`}
             display='flex'
             flexDirection='column'
             alignItems='center'
             justifyContent='center'
             sx={{
-                width: '150px', 
+                width: '180px', 
                 cursor: 'pointer',
                 textDecoration: 'none'
             }}

@@ -1,24 +1,18 @@
 import { Box } from "@mui/material";
 import ItemElem from "./ItemElem";
 
-const ItemList = () => {
-    let itemList = [];
-    for (let i = 0; i < 30; i++) {
-        itemList.push({
-            name: 'Pirates of the Caribbean',
-            picture: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%3Fid%3DOIP.gF--XR-CwFzNmC-zfsJD1QHaKu%26pid%3DApi&f=1&ipt=816805543dd762d67ec59cdc3d7db760f2dc029269e4359f9a9d96c783474dd3&ipo=images',
-        });
-    }
+const ItemList = ({itemList}) => {
 
     return (
         <Box
-            display='flex'
-            flexWrap='wrap'  
-            justifyContent='left'  
+            display='grid'
+            justifyContent='left'
             gap={3}
+            gridTemplateColumns='repeat(auto-fit, minmax(200px, 1fr))'
+            gridAutoFlow='row dense'
         >
             {itemList.map((item, index) => (
-               <ItemElem name={item.name} image={item.picture} item_index={index}></ItemElem>
+               <ItemElem key={index} name={item.title.english} image={item.coverImage.large} item_id={item.id} ></ItemElem>
             ))}
         </Box>
     );

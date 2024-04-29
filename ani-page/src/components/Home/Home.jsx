@@ -2,8 +2,31 @@ import Navbar from "../Navbar/Navbar";
 import { Box, Typography } from "@mui/material";
 import ItemList from "./ItemList";
 import ItemRow from "./ItemRow";
+import { useState, useEffect } from "react";
+import { all_query, endpoint_url } from "../../anilistQueries";
 
 const Home = () => {
+    const [animeData, setAnimeData] = useState([]);
+
+    useEffect(() => {
+       fetch(endpoint_url, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'},
+                body: JSON.stringify({
+                query: all_query,
+                })
+            },
+            )
+        .then((response) => {return response.json().then(function (json) {
+        return response.ok ? json : Promise.reject(json);
+        });})
+        .then((response) => {
+            setAnimeData(response.data.Page.media);
+        }).catch(error => console.error('Error occured!', error))
+    }, []);
+
     return ( 
         <div>
             <Navbar />
@@ -27,7 +50,7 @@ const Home = () => {
                         borderRadius: 3,
                         boxShadow: 3,
                     }}>
-                    <ItemList />
+                    <ItemList itemList={animeData} />
                 </Box>
                 <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}>
                     Best picks for every taste
@@ -40,7 +63,7 @@ const Home = () => {
                         borderRadius: 3,
                         boxShadow: 3,
                     }}>
-                    <ItemList />
+                    <ItemList itemList={animeData}/>
                 </Box>
                 <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
                     Browse our library

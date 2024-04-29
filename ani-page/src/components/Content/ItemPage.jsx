@@ -1,14 +1,34 @@
 import { useParams } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import { Box, Typography, Button, Rating } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { endpoint_url, id_query } from "../../anilistQueries";
+import { Link } from "react-router-dom";
 
 const ItemPage = () => {
     const { item_id } = useParams()
     const [showDescription, setShowDescription] = useState(false);
+    const [animeData, setAnimeData] = useState('');
 
-    const movieData = {name: "Pirates of the Carribean", director: "Guy SOme Guy", writers: ["Jimmy", "Joe", "Jeremy"], stars: ["Depp", "Jeremia", "Joe"], description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis ultricies urna. Pellentesque blandit nulla ut mattis congue. Aenean fermentum tellus tortor. Etiam rutrum, elit in eleifend elementum, nunc diam pharetra leo, sit amet placerat dui sapien a elit. Sed lectus leo, sollicitudin varius magna et, consectetur vehicula nisi. Morbi varius libero felis, et tristique sapien euismod et. Nullam urna leo, sodales sed felis sit amet, eleifend posuere diam. Nam laoreet metus quis nulla volutpat varius. Fusce fermentum pretium nibh, vel luctus tellus accumsan varius. Aliquam ac sapien viverra, iaculis dui in, faucibus arcu. Praesent est nunc, egestas ut lorem eget, lobortis pellentesque tortor. Proin finibus augue eu pulvinar semper. Maecenas sed accumsan massa.", genres: ["adventure", "magic"]}
-    const test_url = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%3Fid%3DOIP.gF--XR-CwFzNmC-zfsJD1QHaKu%26pid%3DApi&f=1&ipt=816805543dd762d67ec59cdc3d7db760f2dc029269e4359f9a9d96c783474dd3&ipo=images'
+    useEffect(() => {
+       fetch(endpoint_url, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'},
+                body: JSON.stringify({
+                query: id_query,
+                variables: { id: item_id }
+                })
+            },
+            )
+        .then((response) => {return response.json().then(function (json) {
+        return response.ok ? json : Promise.reject(json);
+        });})
+        .then((response) => {
+            setAnimeData(response.data.Media);
+        }).catch(error => console.error('Error occured!', error))
+    }, [item_id]);
 
     const toggleDescription = () => {
         setShowDescription((prev) => !prev);
@@ -17,7 +37,7 @@ const ItemPage = () => {
     return (  
         <div>
             <Navbar />
-            <Box
+            {animeData && <Box
                 display='flex'
                 flexDirection='column'
                 alignItems='left'
@@ -36,11 +56,11 @@ const ItemPage = () => {
                         padding: 2,
                     }}>
                     <img 
-                        src={test_url}
-                        alt={movieData.name} 
+                        src={animeData.coverImage.extraLarge}
+                        alt={animeData.title.english} 
                         style={{
                         width: 'auto',
-                        height: 'auto',
+                        height: '400px',
                         objectFit: 'cover'}}
                     />
                     <Box
@@ -49,19 +69,19 @@ const ItemPage = () => {
                         alignItems='left'
                         justifyContent='left'>
                         <Typography variant='h4' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            {movieData.name} {item_id}
+                            {animeData.title.english} 
                         </Typography>
                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            Director: {movieData.director}
+                            Characters: {(animeData.characters.nodes.map(node => node.name.full)).join(', ')}
                         </Typography>
                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            Genres: {movieData.genres.join(', ')}
+                            Genre: {animeData.genres.join(', ')}
                         </Typography>
                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            Writers: {movieData.writers.join(', ')}
+                            Studio: {animeData.studios.nodes[0].name}
                         </Typography>
-                        <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            Stars: {movieData.stars.join(', ')}
+                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
+                            Thumbnail: {animeData.trailer.id}
                         </Typography>
                         <Box sx={{ marginLeft: 10, marginBottom: 2 }}>
                             <Typography variant='h6' sx={{ fontFamily: 'Quicksand', color: 'white' }}>
@@ -89,12 +109,21 @@ const ItemPage = () => {
                                 variant='h6' 
                                 sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
 
-                                {movieData.description}
+                                {animeData.description}
                             </Typography>
                         )}
                     </Box>
                 </Box>
-            </Box>
+                {animeData.trailer.site==='youtube' && 
+                 <Typography 
+                    variant='h4' 
+                    sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}
+                    component={Link}
+                    to={`https://www.youtube.com/watch?v=${animeData.trailer.id}`}>
+
+                    Click here to view the trailer 
+                </Typography>}
+            </Box>}
         </div>
     );
 }
