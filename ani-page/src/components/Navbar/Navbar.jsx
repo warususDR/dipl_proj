@@ -12,7 +12,7 @@ const Navbar = () => {
     };
 
     return ( 
-        <AppBar position='fixed' sx={{ backgroundColor: 'rgb(25, 118, 210' }}>
+        <AppBar position='fixed' sx={{ backgroundColor: 'rgb(25, 118, 210)' }}>
             <Toolbar>
                 <Typography 
                     component={Link} 

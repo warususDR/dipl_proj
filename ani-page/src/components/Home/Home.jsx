@@ -16,28 +16,28 @@ const Home = () => {
                     paddingTop: '8vh',
                     paddingX: 3,
                 }}>
-                <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
+                <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}>
                     Recommended for you
                 </Typography>
                 <Box
                     sx={{
                         width: '95%',
                         padding: 2,
-                        backgroundColor: 'rgb(97, 97, 97)',
-                        borderRadius: 5,
+                        backgroundColor: 'rgb(66, 66, 66)',
+                        borderRadius: 3,
                         boxShadow: 3,
                     }}>
                     <ItemList />
                 </Box>
-                <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
+                <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}>
                     Best picks for every taste
                 </Typography>
                 <Box
                     sx={{
                         width: '95%',
                         padding: 2,
-                        backgroundColor: 'rgb(97, 97, 97)',
-                        borderRadius: 5,
+                        backgroundColor: 'rgb(66, 66, 66)',
+                        borderRadius: 3,
                         boxShadow: 3,
                     }}>
                     <ItemList />
@@ -49,8 +49,8 @@ const Home = () => {
                     sx={{
                         width: '99%',
                         padding: 2,
-                        backgroundColor: 'rgb(97, 97, 97)',
-                        borderRadius: 5,
+                        backgroundColor: 'rgb(66, 66, 66)',
+                        borderRadius: 3,
                         boxShadow: 3,
                         marginBottom: 3
                     }}>
