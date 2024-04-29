@@ -15,9 +15,9 @@ const ItemRow = () => {
         <Box
             display='flex'
             flexDirection='row'  
-            justifyContent='center'
+            justifyContent='left'
             columnGap={3}
-            overflow='auto'>
+            sx={{ width: '100%', overflowX: 'auto'}}>
     
             {itemList.map((item, index) => (
                <ItemElem name={item.name} image={item.picture} item_index={index}></ItemElem>

@@ -12,9 +12,14 @@ const Navbar = () => {
     };
 
     return ( 
-        <AppBar position='static' sx={{ backgroundColor: 'rgba(25, 118, 210, 0.8)' }}>
+        <AppBar position='fixed' sx={{ backgroundColor: 'rgb(25, 118, 210' }}>
             <Toolbar>
-                <Typography variant='h6' sx={{ flexGrow: 1, fontFamily: 'Quicksand' }}>
+                <Typography 
+                    component={Link} 
+                    to={home_route}
+                    variant='h6' 
+                    sx={{ flexGrow: 1, fontFamily: 'Quicksand', cursor: 'pointer', textDecoration: 'none', color: 'white' }}>
+
                     ANI-WORLD
                 </Typography>
                 <TextField
@@ -32,6 +37,7 @@ const Navbar = () => {
                         )
                     }}
                     sx={{ marginRight: 2, 
+                          marginLeft: 2,
                         '& .MuiOutlinedInput-root': {
                             backgroundColor: 'rgba(255, 255, 255, 0.1)',
                             color: 'white',
@@ -62,9 +68,6 @@ const Navbar = () => {
                         }
                      }}
                 />
-                <Button color='inherit' sx={{ fontFamily: 'Quicksand' }} component={Link} to={home_route}>
-                    Home
-                </Button>
                 <IconButton component={Link} to={profile_route}>
                     <Person2Icon style={{ color: 'white' }} />
                 </IconButton>

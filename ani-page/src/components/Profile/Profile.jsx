@@ -30,7 +30,7 @@ const Profile = () => {
                     sx={{
                         width: '80%',
                         padding: 2,
-                        backgroundColor: 'rgba(25, 118, 210, 0.8)',
+                        backgroundColor: 'rgb(25, 118, 210)',
                         borderRadius: 5,
                         boxShadow: 3,
                     }}>

@@ -13,7 +13,7 @@ const Home = () => {
                 alignItems='left'
                 justifyContent='center'
                 sx={{
-                    paddingTop: '1vh',
+                    paddingTop: '8vh',
                     paddingX: 3,
                 }}>
                 <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
@@ -21,22 +21,22 @@ const Home = () => {
                 </Typography>
                 <Box
                     sx={{
-                        width: '90%',
+                        width: '95%',
                         padding: 2,
-                        backgroundColor: 'rgba(25, 118, 210, 0.8)',
+                        backgroundColor: 'rgb(97, 97, 97)',
                         borderRadius: 5,
                         boxShadow: 3,
                     }}>
                     <ItemList />
                 </Box>
                 <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
-                    Best pics for every taste
+                    Best picks for every taste
                 </Typography>
                 <Box
                     sx={{
-                        width: '90%',
+                        width: '95%',
                         padding: 2,
-                        backgroundColor: 'rgba(25, 118, 210, 0.8)',
+                        backgroundColor: 'rgb(97, 97, 97)',
                         borderRadius: 5,
                         boxShadow: 3,
                     }}>
@@ -47,11 +47,12 @@ const Home = () => {
                 </Typography>
                 <Box
                     sx={{
-                        width: '95%',
+                        width: '99%',
                         padding: 2,
-                        backgroundColor: 'rgba(25, 118, 210, 0.8)',
+                        backgroundColor: 'rgb(97, 97, 97)',
                         borderRadius: 5,
                         boxShadow: 3,
+                        marginBottom: 3
                     }}>
                     <ItemRow />
                 </Box>

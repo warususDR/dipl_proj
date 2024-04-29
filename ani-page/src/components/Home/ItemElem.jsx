@@ -1,8 +1,11 @@
 import { Typography, Box } from "@mui/material";
+import { Link } from "react-router-dom";
+import { item_route } from "../Router/Routes";
 
 const ItemElem = ({name, image, item_index}) => {
+
     return (  
-        <Box
+        <Box component={Link} to={`${item_route}/${item_index}`}
             key={item_index} 
             display='flex'
             flexDirection='column'
@@ -10,6 +13,8 @@ const ItemElem = ({name, image, item_index}) => {
             justifyContent='center'
             sx={{
                 width: '150px', 
+                cursor: 'pointer',
+                textDecoration: 'none'
             }}
         >
             <img
