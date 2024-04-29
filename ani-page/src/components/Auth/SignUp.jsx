@@ -14,28 +14,28 @@ const SignUp = () => {
     };
 
     return (  
-        <Container maxWidth="sm">
+        <Container maxWidth='sm'>
             <Box 
-                display="flex" 
-                alignItems="center" 
-                flexDirection="column" 
-                justifyContent="center"
-                sx={{ backgroundColor: 'rgba(25, 118, 210, 0.8)', borderRadius: 5, boxShadow: 3, padding: 3, marginTop: "20vh" }}>
-                <Typography variant="h4" sx={{fontFamily: 'QuickSand', color: 'white'}}>Register on Ani-World</Typography>
+                display='flex' 
+                alignItems='center' 
+                flexDirection='column'
+                justifyContent='center'
+                sx={{ backgroundColor: 'rgba(25, 118, 210, 0.8)', borderRadius: 5, boxShadow: 3, padding: 3, marginTop: '20vh' }}>
+                <Typography variant='h4' sx={{fontFamily: 'QuickSand', color: 'white'}}>Register on Ani-World</Typography>
                 <Box 
-                    component="form" 
+                    component='form'
                     onSubmit={SignUp} 
-                    alignItems="center" 
-                    display="flex" 
-                    flexDirection="column" 
+                    alignItems='center' 
+                    display='flex' 
+                    flexDirection='column' 
                     justifyContent='center'>
-                    <CustomTextField placeholder="Enter email..." autoComplete="email" onChange={setEmail}></CustomTextField>
-                    <CustomTextField placeholder="Enter nickname.." autoComplete="nickname" onChange={setNickname}></CustomTextField>
-                    <CustomTextField placeholder="Enter password..." autoComplete="password" onChange={setPassword}></CustomTextField>
-                    <CustomTextField placeholder="Confirm password..." autoComplete="password" onChange={setPassword}>
+                    <CustomTextField placeholder='Enter email...' autoComplete='email' onChange={setEmail}></CustomTextField>
+                    <CustomTextField placeholder='Enter nickname...' autoComplete='nickname' onChange={setNickname}></CustomTextField>
+                    <CustomTextField placeholder='Enter password...' autoComplete='password' onChange={setPassword}></CustomTextField>
+                    <CustomTextField placeholder='Confirm password...' autoComplete='password' onChange={setPassword}>
                     </CustomTextField>
                     <Button 
-                    type="submit" 
+                    type='submit' 
                     sx={{fontFamily: 'QuickSand', 
                          backgroundColor: 'rgba(255, 255, 255, 0.7)', 
                          margin: '16px',

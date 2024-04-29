@@ -11,7 +11,7 @@ const CustomTextField = (props) => {
             placeholder={props.placeholder}
             autoComplete={props.autoComplete}
             onChange={handleChange}
-            margin="normal"
+            margin='normal'
             variant='outlined'
             size='small'
             required

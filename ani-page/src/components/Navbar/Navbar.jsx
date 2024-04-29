@@ -12,7 +12,7 @@ const Navbar = () => {
     };
 
     return ( 
-        <AppBar position='static'>
+        <AppBar position='static' sx={{ backgroundColor: 'rgba(25, 118, 210, 0.8)' }}>
             <Toolbar>
                 <Typography variant='h6' sx={{ flexGrow: 1, fontFamily: 'Quicksand' }}>
                     ANI-WORLD
