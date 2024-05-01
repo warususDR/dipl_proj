@@ -1,15 +1,14 @@
 import { Typography, Box } from "@mui/material";
-import { Link } from "react-router-dom";
-import { item_route } from "../Router/Routes";
 
-const ItemElem = ({name, image, item_id, showTitle}) => {
+const CharElem = ({name, image}) => {
 
     return (  
-        <Box component={Link} to={`${item_route}/${item_id}`}
+        <Box
             display='flex'
             flexDirection='column'
             alignItems='center'
             justifyContent='left'
+            marginRight='8px'
             sx={{
                 width: '160px', 
                 cursor: 'pointer',
@@ -25,14 +24,14 @@ const ItemElem = ({name, image, item_id, showTitle}) => {
                     objectFit: 'cover',
                 }}
             />
-            {showTitle && <Typography
+            <Typography
                 variant='h6'
                 sx={{ fontFamily: 'Quicksand', color: 'white', textAlign: 'center' }}
             >
                 {name}
-            </Typography>}
+            </Typography>
         </Box>
     );
 }
  
-export default ItemElem;
+export default CharElem;

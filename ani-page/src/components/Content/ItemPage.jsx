@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
+import CharsList from "./CharsList";
 import { Box, Typography, Button, Rating } from "@mui/material";
 import { useState, useEffect } from "react";
 import { endpoint_url, id_query } from "../../anilistQueries";
@@ -69,23 +70,29 @@ const ItemPage = () => {
                         alignItems='left'
                         justifyContent='left'>
                         <Typography variant='h4' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            {animeData.title.english} 
+                            {animeData.title.english ? animeData.title.english : animeData.title.romaji} 
                         </Typography>
                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            Characters: {(animeData.characters.nodes.map(node => node.name.full)).join(', ')}
+                            Year: {animeData.seasonYear}
                         </Typography>
                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            Genre: {animeData.genres.join(', ')}
+                            Episodes: {animeData.episodes}
+                        </Typography>
+                        <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
+                            Status: {animeData.status}
+                        </Typography>
+                        <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
+                            Source: {animeData.source}
+                        </Typography>
+                        <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
+                            Genres: {animeData.genres.join(', ')}
                         </Typography>
                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
                             Studio: {animeData.studios.nodes[0].name}
                         </Typography>
-                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
-                            Thumbnail: {animeData.trailer.id}
-                        </Typography>
                         <Box sx={{ marginLeft: 10, marginBottom: 2 }}>
                             <Typography variant='h6' sx={{ fontFamily: 'Quicksand', color: 'white' }}>
-                                Rate this movie:
+                                Rate this anime:
                             </Typography>
                             <Rating 
                                 name={`${item_id}_rating`} 
@@ -114,15 +121,22 @@ const ItemPage = () => {
                         )}
                     </Box>
                 </Box>
-                {animeData.trailer.site==='youtube' && 
-                 <Typography 
-                    variant='h4' 
+                {animeData.trailer && animeData.trailer.site==='youtube' && 
+                <Typography 
+                    variant='h5' 
                     sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}
                     component={Link}
                     to={`https://www.youtube.com/watch?v=${animeData.trailer.id}`}>
 
                     Click here to view the trailer 
                 </Typography>}
+                <Typography 
+                    variant='h4' 
+                    sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}>
+
+                    Characters: 
+                </Typography>
+                <CharsList charsList={animeData.characters.nodes}></CharsList>
             </Box>}
         </div>
     );

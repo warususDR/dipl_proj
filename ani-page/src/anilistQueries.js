@@ -19,23 +19,30 @@ query ($id: Int) { # Define which variables will be used in the query (id)
     }
     studios(isMain: true) {
       nodes {
-          name
+        name
       }
     }
     characters {
       nodes {
         name {
-            full
+          full
+        }
+        image {
+          large
         }
       }
     }
     genres
+    seasonYear
+    status
+    episodes
+    source
   }
 }
 `;
-export const all_query = `
+export const popular_query = `
 query {
-    Page(page: 1, perPage: 500) {
+    Page(page: 1, perPage: 25) {
         media(type: ANIME, sort: POPULARITY_DESC) {
             id
             title {
@@ -65,4 +72,39 @@ query {
         }
     }
 }
+`;
+export const all_query = `
+query ($page: Int) {
+    Page(page: $page, perPage: 50) {
+        pageInfo {
+          total
+        }
+        media(type: ANIME, sort: TRENDING_DESC) {
+            id
+            title {
+              romaji
+              english
+            }
+            coverImage {
+              large
+            }
+        }
+    }
+}
+`;
+export const search_query = `
+    query($search: String) {
+        Page(page: 1, perPage: 10) {
+            media(search: $search, type: ANIME, isAdult: false) {
+                id
+                title {
+                    romaji
+                    english
+                }
+                coverImage {
+                    large
+                }
+            }
+        }
+    }
 `;

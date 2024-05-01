@@ -1,12 +1,37 @@
 import Navbar from "../Navbar/Navbar";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import ItemList from "./ItemList";
-import ItemRow from "./ItemRow";
 import { useState, useEffect } from "react";
-import { all_query, endpoint_url } from "../../anilistQueries";
+import { all_query, popular_query, endpoint_url } from "../../anilistQueries";
 
 const Home = () => {
-    const [animeData, setAnimeData] = useState([]);
+    const [popularData, setPopularData] = useState([]);
+    const [allData, setAllData] = useState([]);
+    const [hasRecs, setHasRecs] = useState(false);
+    const [currentPage, setCurrentPage] = useState(() => {
+        const savedPage = localStorage.getItem('currentPage');
+        return savedPage ? parseInt(savedPage, 10) : 1;
+    });
+    const [totalPages, setTotalPages] = useState(0);
+
+    useEffect(() => {
+       fetch(endpoint_url, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'},
+                body: JSON.stringify({
+                query: popular_query,
+                })
+            },
+            )
+        .then((response) => {return response.json().then(function (json) {
+        return response.ok ? json : Promise.reject(json);
+        });})
+        .then((response) => {
+            setPopularData(response.data.Page.media);
+        }).catch(error => console.error('Error occured!', error))
+    }, []);
 
     useEffect(() => {
        fetch(endpoint_url, {
@@ -16,6 +41,7 @@ const Home = () => {
                 'Accept': 'application/json'},
                 body: JSON.stringify({
                 query: all_query,
+                variables: { page: currentPage }
                 })
             },
             )
@@ -23,9 +49,26 @@ const Home = () => {
         return response.ok ? json : Promise.reject(json);
         });})
         .then((response) => {
-            setAnimeData(response.data.Page.media);
+            setAllData(response.data.Page.media);
+            setTotalPages(response.data.Page.pageInfo.total);
         }).catch(error => console.error('Error occured!', error))
-    }, []);
+    }, [currentPage]);
+
+     useEffect(() => {
+        localStorage.setItem('currentPage', currentPage);
+    }, [currentPage]);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
 
     return ( 
         <div>
@@ -39,10 +82,10 @@ const Home = () => {
                     paddingTop: '8vh',
                     paddingX: 3,
                 }}>
-                <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}>
+                {hasRecs && <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}>
                     Recommended for you
-                </Typography>
-                <Box
+                </Typography>}
+                {hasRecs && <Box
                     sx={{
                         width: '95%',
                         padding: 2,
@@ -50,10 +93,10 @@ const Home = () => {
                         borderRadius: 3,
                         boxShadow: 3,
                     }}>
-                    <ItemList itemList={animeData} />
-                </Box>
+                    <ItemList itemList={popularData} />
+                </Box>}
                 <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}>
-                    Best picks for every taste
+                    Top 50 most popular anime
                 </Typography>
                 <Box
                     sx={{
@@ -63,21 +106,37 @@ const Home = () => {
                         borderRadius: 3,
                         boxShadow: 3,
                     }}>
-                    <ItemList itemList={animeData}/>
+                    {popularData && <ItemList itemList={popularData} showTitle={true}/>}
                 </Box>
                 <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
                     Browse our library
                 </Typography>
                 <Box
                     sx={{
-                        width: '99%',
-                        padding: 2,
-                        backgroundColor: 'rgb(66, 66, 66)',
-                        borderRadius: 3,
-                        boxShadow: 3,
-                        marginBottom: 3
+                        width: '95%',
+                        marginBottom: '2px'
                     }}>
-                    <ItemRow />
+                    <ItemList itemList={allData} showTitle={false} />
+                </Box>
+                <Box display='flex' justifyContent='center' flexDirection='row' alignItems='center' marginTop='2px'>
+                    <Button 
+                        variant='contained' 
+                        onClick={handlePreviousPage} 
+                        disabled={currentPage === 1} 
+                        sx={{ fontFamily: 'Quicksand', margin: '10px'}}>
+    
+                        Previous
+                    </Button>
+                    <Typography variant='body1' sx={{ color: 'white', fontFamily: 'Quicksand' }}>
+                        Page {currentPage} of {totalPages}
+                    </Typography>
+                    <Button 
+                    variant='contained' 
+                    onClick={handleNextPage} 
+                    disabled={currentPage === totalPages}
+                    sx={{ fontFamily: 'Quicksand', margin: '10px'}}>
+                        Next
+                    </Button>
                 </Box>
             </Box>
         </div>

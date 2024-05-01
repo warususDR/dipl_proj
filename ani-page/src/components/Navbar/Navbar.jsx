@@ -1,14 +1,58 @@
 import { Link } from "react-router-dom";
 import { home_route, profile_route, signup_route, login_route } from "../Router/Routes";
-import { TextField, Button, AppBar, Toolbar, Typography, IconButton, InputAdornment } from "@mui/material";
+import { TextField, Button, AppBar, Toolbar, Typography, Icon, IconButton, InputAdornment, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Person2Icon from '@mui/icons-material/Person2';
+import { useState } from "react";
+import { endpoint_url, search_query } from "../../anilistQueries";
+import ItemList from "../Home/ItemList";
 
 const Navbar = () => {
 
-     const handleSearchChange = (event) => {
-        const searchValue = event.target.value;
-        console.log('Search movie:', searchValue);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [showSearchPopup, setShowSearchPopup] = useState(false); 
+
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func(...args);
+            }, delay);
+        };
+    };
+
+    const debouncedSearch = debounce((query) => {
+        setSearchQuery(query);
+    }, 400); 
+
+    const handleSearchChange = (event) => {
+        setShowSearchPopup(false);
+        debouncedSearch(event.target.value);
+        if(searchQuery.length !== 0) {
+            fetch(endpoint_url, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'},
+                body: JSON.stringify({
+                query: search_query,
+                variables: { search: searchQuery }
+                })
+            },
+            )
+            .then((response) => {return response.json().then(function (json) {
+            return response.ok ? json : Promise.reject(json);
+            });})
+            .then((response) => {
+                setSearchResults(response.data.Page.media);
+                setShowSearchPopup(true);
+            }).catch(error => console.error('Error occured!', error))
+        }
+        else {
+            setSearchResults([]);
+        }
     };
 
     return ( 
@@ -24,15 +68,15 @@ const Navbar = () => {
                 </Typography>
                 <TextField
                     variant='outlined'
-                    placeholder='Search movie'
+                    placeholder='Search anime'
                     size='small'
                     onChange={handleSearchChange}
                     InputProps={{
                         endAdornment: (
-                        <InputAdornment>
-                            <IconButton>
+                        <InputAdornment position='end'>
+                            <Icon>
                                 <SearchIcon style={{color: 'white', opacity: 0.7}} />
-                            </IconButton>
+                            </Icon>
                         </InputAdornment>
                         )
                     }}
@@ -78,6 +122,38 @@ const Navbar = () => {
                     Log Out
                 </Button>
             </Toolbar>
+            {showSearchPopup && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '60px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 1000,
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        borderRadius: '10px',
+                        padding: '10px',
+                        width: '90%', 
+                        maxHeight: '400px', 
+                        overflowY: 'auto',
+                    }}
+                >
+                    {(searchResults.length !== 0) && <ItemList itemList={searchResults} showTitle={true} />}
+                    {(searchResults.length === 0) && <Typography variant="body1" sx={{ color: 'white', fontFamily: 'Quicksand'}}>
+                        Nothing found!
+                    </Typography>}
+                    <Button
+                        variant='contained'
+                        onClick={() => {
+                            setShowSearchPopup(false);
+                            setSearchQuery('');
+                        }}
+                        sx={{ display: 'block', margin: '10px auto', fontFamily: 'Quicksand' }}
+                    >
+                        Close
+                    </Button>
+                </Box>
+            )}
         </AppBar>
      );
 }
