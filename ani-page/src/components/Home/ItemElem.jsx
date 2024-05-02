@@ -25,10 +25,12 @@ const ItemElem = ({name, image, item_id, showTitle}) => {
                     objectFit: 'cover',
                 }}
             />
-            {showTitle && <Typography
+            {showTitle && 
+            <Typography
                 variant='h6'
                 sx={{ fontFamily: 'Quicksand', color: 'white', textAlign: 'center' }}
             >
+
                 {name}
             </Typography>}
         </Box>

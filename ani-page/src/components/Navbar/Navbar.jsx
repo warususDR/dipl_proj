@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { home_route, profile_route, signup_route, login_route } from "../Router/Routes";
-import { TextField, Button, AppBar, Toolbar, Typography, Icon, IconButton, InputAdornment, Box } from "@mui/material";
+import { TextField, Button, AppBar, Toolbar, Typography, IconButton, InputAdornment, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Person2Icon from '@mui/icons-material/Person2';
 import { useState } from "react";
@@ -13,24 +13,13 @@ const Navbar = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchPopup, setShowSearchPopup] = useState(false); 
 
-    const debounce = (func, delay) => {
-        let timeoutId;
-        return (...args) => {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                func(...args);
-            }, delay);
-        };
-    };
-
-    const debouncedSearch = debounce((query) => {
-        setSearchQuery(query);
-    }, 400); 
-
     const handleSearchChange = (event) => {
         setShowSearchPopup(false);
-        debouncedSearch(event.target.value);
-        if(searchQuery.length !== 0) {
+        setSearchQuery(event.target.value);
+    };
+
+    const handleSearch = () => {
+         if(searchQuery !== '') {
             fetch(endpoint_url, {
                 method: 'POST',
                 headers: {
@@ -53,7 +42,7 @@ const Navbar = () => {
         else {
             setSearchResults([]);
         }
-    };
+    }
 
     return ( 
         <AppBar position='fixed' sx={{ backgroundColor: 'rgb(25, 118, 210)' }}>
@@ -62,8 +51,8 @@ const Navbar = () => {
                     component={Link} 
                     to={home_route}
                     variant='h6' 
-                    sx={{ flexGrow: 1, fontFamily: 'Quicksand', cursor: 'pointer', textDecoration: 'none', color: 'white' }}>
-
+                    sx={{ flexGrow: 1, fontFamily: 'Quicksand', cursor: 'pointer', textDecoration: 'none', color: 'white' }}
+                >
                     ANI-WORLD
                 </Typography>
                 <TextField
@@ -74,9 +63,9 @@ const Navbar = () => {
                     InputProps={{
                         endAdornment: (
                         <InputAdornment position='end'>
-                            <Icon>
+                            <IconButton onClick={handleSearch}>
                                 <SearchIcon style={{color: 'white', opacity: 0.7}} />
-                            </Icon>
+                            </IconButton>
                         </InputAdornment>
                         )
                     }}

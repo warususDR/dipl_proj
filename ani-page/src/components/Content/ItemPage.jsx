@@ -5,6 +5,7 @@ import { Box, Typography, Button, Rating } from "@mui/material";
 import { useState, useEffect } from "react";
 import { endpoint_url, id_query } from "../../anilistQueries";
 import { Link } from "react-router-dom";
+import utils from "../../utils";
 
 const ItemPage = () => {
     const { item_id } = useParams()
@@ -116,7 +117,7 @@ const ItemPage = () => {
                                 variant='h6' 
                                 sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
 
-                                {animeData.description}
+                                {utils.stripHtml(animeData.description)}
                             </Typography>
                         )}
                     </Box>

@@ -71,7 +71,7 @@ const Home = () => {
     };
 
     return ( 
-        <div>
+        <Box>
             <Navbar />
             <Box
                 display='flex'
@@ -95,8 +95,9 @@ const Home = () => {
                     }}>
                     <ItemList itemList={popularData} />
                 </Box>}
-                <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}>
-                    Top 50 most popular anime
+                <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 3, color: 'white', fontWeight: 'bold' }}
+                >
+                    Top 25 most popular anime
                 </Typography>
                 <Box
                     sx={{
@@ -105,7 +106,8 @@ const Home = () => {
                         backgroundColor: 'rgb(66, 66, 66)',
                         borderRadius: 3,
                         boxShadow: 3,
-                    }}>
+                    }}
+                >
                     {popularData && <ItemList itemList={popularData} showTitle={true}/>}
                 </Box>
                 <Typography variant='h5' sx={{ fontFamily: 'Quicksand', marginTop: 3, marginBottom: 2, color: 'white', fontWeight: 'bold' }}>
@@ -115,7 +117,8 @@ const Home = () => {
                     sx={{
                         width: '95%',
                         marginBottom: '2px'
-                    }}>
+                    }}
+                >
                     <ItemList itemList={allData} showTitle={false} />
                 </Box>
                 <Box display='flex' justifyContent='center' flexDirection='row' alignItems='center' marginTop='2px'>
@@ -123,7 +126,8 @@ const Home = () => {
                         variant='contained' 
                         onClick={handlePreviousPage} 
                         disabled={currentPage === 1} 
-                        sx={{ fontFamily: 'Quicksand', margin: '10px'}}>
+                        sx={{ fontFamily: 'Quicksand', margin: '10px'}}
+                    >
     
                         Previous
                     </Button>
@@ -134,12 +138,13 @@ const Home = () => {
                     variant='contained' 
                     onClick={handleNextPage} 
                     disabled={currentPage === totalPages}
-                    sx={{ fontFamily: 'Quicksand', margin: '10px'}}>
+                    sx={{ fontFamily: 'Quicksand', margin: '10px'}}
+                    >
                         Next
                     </Button>
                 </Box>
             </Box>
-        </div>
+        </Box>
      );
 }
  
