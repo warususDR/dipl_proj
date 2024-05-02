@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 class Connection {
   constructor(
-    uri = "",
+    uri = "mongodb+srv://warusus:xlJJroAKnDZRSQHD@clusterdmytrii.xzcilih.mongodb.net/?retryWrites=true&w=majority&appName=ClusterDmytrii",
     clientOptions = {
       serverApi: { version: "1", strict: true, deprecationErrors: true },
     }
@@ -142,4 +142,5 @@ class Connection {
   }
 }
 
-export default Connection;
+const db = new Connection()
+export default db;

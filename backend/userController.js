@@ -1,0 +1,70 @@
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import db from './Connection.js'
+import User from './mongoose_models/User.js'
+import { secret } from './utils.js'
+
+const generateJwtToken = (id, email, nickname) => {
+    const data = { id, email, nickname };
+    return jwt.sign(data, secret, {expiresIn: '8h'});
+} 
+
+class UserController {
+    async login(req, res) {
+        try {
+            const { email, password } = req.body;
+            const currUser = db.getDocument(User, { email: email});
+            if (!currUser) return res.status(400).json({ error: `Email ${email} already taken!` })
+            const passwordCheck = bcrypt.compareSync(password, currUser.password);
+            if (!passwordCheck) return res.status(400).json({ error: 'Wrong password!' })
+            const jwt_token = generateJwtToken(currUser._id, currUser.email, currUser.nickname);
+            res.status(200).json({ jwt_token });
+        } catch(error) {
+            console.error('Login error', error);
+            res.status(400).json({ error: `Login error: ${error}` });
+        }
+    }
+
+    async signUp(req, res) {
+        try {
+            const raw_data = req.body;
+            const data = {};
+            for (const key in raw_data) {
+                if (raw_data.hasOwnProperty(key)) {
+                data[key] = raw_data[key];
+                }
+            }
+            const usr = db.getDocument(User, {email: data.email});
+            if (usr) return res.status(400).json({ error: 'Email already taken!' })
+            const encodedPassword = bcrypt.hashSync(data.password, 10);
+            data.password = encodedPassword;
+            data.signup_date = new Date();
+            const newUser = db.addDocument(User, data);
+            if (newUser) {
+                res.status(200).json( {message: `Added user ${newUser._id}` } );
+            }
+            else res.status(400).json({ error: `Couldn't create user: ${error}` });
+        } catch(error) {
+            console.error('Error adding user', error);
+            res.status(400).json({ error: `Error adding user: ${error}` });
+        }
+
+    }
+
+    async getInfo(req, res) {
+        try {
+            const jwt_token = req.headers.authorization.split(' ')[1];
+            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            const { id } = jwt.verify(jwt_token, secret);
+            const currUser = db.getDocumentById(User, id);
+            if (!currUser) return res.status(400).json({ error: `Error getting user with id provided: ${error}` });
+            res.status(200).json(JSON.stringify(currUser));
+        } catch(error) {
+            console.error('Error getting user info', error);
+            res.status(400).json({ error: `Error getting user info: ${error}` });
+        }
+    }
+}
+
+const userController = new UserController();
+export default userController;
