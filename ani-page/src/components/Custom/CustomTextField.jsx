@@ -10,6 +10,7 @@ const CustomTextField = (props) => {
         <TextField
             placeholder={props.placeholder}
             autoComplete={props.autoComplete}
+            type={props.type}
             onChange={handleChange}
             margin='normal'
             variant='outlined'

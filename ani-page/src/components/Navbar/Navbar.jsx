@@ -4,6 +4,7 @@ import { TextField, Button, AppBar, Toolbar, Typography, IconButton, InputAdornm
 import SearchIcon from "@mui/icons-material/Search";
 import Person2Icon from '@mui/icons-material/Person2';
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { endpoint_url, search_query } from "../../anilistQueries";
 import ItemList from "../Home/ItemList";
 
@@ -12,6 +13,13 @@ const Navbar = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchPopup, setShowSearchPopup] = useState(false); 
+    const navigate = useNavigate();
+
+    const logOut = (event) => {
+        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('page');
+        navigate(login_route);
+    }
 
     const handleSearchChange = (event) => {
         setShowSearchPopup(false);
@@ -107,7 +115,7 @@ const Navbar = () => {
                 <Button color='inherit' sx={{ fontFamily: 'Quicksand' }} component={Link} to={signup_route}>
                     Sign Up
                 </Button>
-                 <Button color='inherit' sx={{ fontFamily: 'Quicksand' }} component={Link} to={login_route}>
+                 <Button color='inherit' sx={{ fontFamily: 'Quicksand' }} onClick={logOut}>
                     Log Out
                 </Button>
             </Toolbar>

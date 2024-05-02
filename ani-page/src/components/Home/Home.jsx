@@ -2,7 +2,9 @@ import Navbar from "../Navbar/Navbar";
 import { Box, Button, Typography } from "@mui/material";
 import ItemList from "./ItemList";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { all_query, popular_query, endpoint_url } from "../../anilistQueries";
+import { login_route } from "../Router/Routes";
 
 const Home = () => {
     const [popularData, setPopularData] = useState([]);
@@ -12,7 +14,14 @@ const Home = () => {
         const savedPage = localStorage.getItem('currentPage');
         return savedPage ? parseInt(savedPage, 10) : 1;
     });
-    const [totalPages, setTotalPages] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if(!localStorage.getItem('jwt_token')) {
+            navigate(login_route)
+        }
+    }, [navigate])
 
     useEffect(() => {
        fetch(endpoint_url, {

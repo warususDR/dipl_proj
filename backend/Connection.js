@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 class Connection {
   constructor(
-    uri = "mongodb+srv://warusus:xlJJroAKnDZRSQHD@clusterdmytrii.xzcilih.mongodb.net/?retryWrites=true&w=majority&appName=ClusterDmytrii",
+    uri = "mongodb+srv://warusus:xlJJroAKnDZRSQHD@clusterdmytrii.xzcilih.mongodb.net/dipl_proj?retryWrites=true&w=majority&appName=ClusterDmytrii",
     clientOptions = {
       serverApi: { version: "1", strict: true, deprecationErrors: true },
     }

@@ -1,15 +1,38 @@
 import { Container, Box, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import { signup_route } from "../Router/Routes";
+import { profile_route, signup_route } from "../Router/Routes";
 import CustomTextField from "../Custom/CustomTextField";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login_url } from "../../backendEndpoints";
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const LogIn = (event) => {
-        console.log(email, password);
+        event.preventDefault()
+        fetch(login_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+            }).then(res => {
+                return res.json()
+            }).then(data => {
+                if(data.hasOwnProperty('jwt_token')) {
+                    localStorage.setItem('jwt_token', data.jwt_token);
+                    navigate(profile_route);
+                }
+                else {
+                    alert(data.error);
+                }
+            }).catch(err => {
+                console.error('Error occured', err);
+            }
+        )
     };
 
     return (  
@@ -28,8 +51,10 @@ const Login = () => {
                     display='flex' 
                     flexDirection='column' 
                     justifyContent='center'>
-                    <CustomTextField placeholder='Enter email...' autoComplete='email' onChange={setEmail}></CustomTextField>
-                    <CustomTextField placeholder='Enter password...' autoComplete='password' onChange={setPassword}></CustomTextField>
+                    <CustomTextField placeholder='Enter email...' type='email' autoComplete='email' onChange={setEmail}>
+                    </CustomTextField>
+                    <CustomTextField placeholder='Enter password...' type='password' autoComplete='password' onChange={setPassword}>
+                    </CustomTextField>
                     <Button 
                     type='submit' 
                     sx={{fontFamily: 'QuickSand', 

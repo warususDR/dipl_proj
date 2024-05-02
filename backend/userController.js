@@ -13,8 +13,8 @@ class UserController {
     async login(req, res) {
         try {
             const { email, password } = req.body;
-            const currUser = db.getDocument(User, { email: email});
-            if (!currUser) return res.status(400).json({ error: `Email ${email} already taken!` })
+            const currUser = await db.getDocument(User, { email: email});
+            if (!currUser) return res.status(400).json({ error: `No user with ${email} email!` })
             const passwordCheck = bcrypt.compareSync(password, currUser.password);
             if (!passwordCheck) return res.status(400).json({ error: 'Wrong password!' })
             const jwt_token = generateJwtToken(currUser._id, currUser.email, currUser.nickname);
@@ -34,16 +34,16 @@ class UserController {
                 data[key] = raw_data[key];
                 }
             }
-            const usr = db.getDocument(User, {email: data.email});
+            const usr = await db.getDocument(User, {email: data.email});
             if (usr) return res.status(400).json({ error: 'Email already taken!' })
             const encodedPassword = bcrypt.hashSync(data.password, 10);
             data.password = encodedPassword;
             data.signup_date = new Date();
-            const newUser = db.addDocument(User, data);
+            const newUser = await db.addDocument(User, data);
             if (newUser) {
                 res.status(200).json( {message: `Added user ${newUser._id}` } );
             }
-            else res.status(400).json({ error: `Couldn't create user: ${error}` });
+            else res.status(400).json({ error: "Couldn't sign up" });
         } catch(error) {
             console.error('Error adding user', error);
             res.status(400).json({ error: `Error adding user: ${error}` });
@@ -56,9 +56,9 @@ class UserController {
             const jwt_token = req.headers.authorization.split(' ')[1];
             if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
             const { id } = jwt.verify(jwt_token, secret);
-            const currUser = db.getDocumentById(User, id);
+            const currUser = await db.getDocumentById(User, id);
             if (!currUser) return res.status(400).json({ error: `Error getting user with id provided: ${error}` });
-            res.status(200).json(JSON.stringify(currUser));
+            res.status(200).json(currUser.toJSON());
         } catch(error) {
             console.error('Error getting user info', error);
             res.status(400).json({ error: `Error getting user info: ${error}` });
