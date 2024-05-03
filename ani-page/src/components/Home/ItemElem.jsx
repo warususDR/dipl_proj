@@ -1,11 +1,13 @@
 import { Typography, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { item_route } from "../Router/Routes";
+import { updateAction } from "../../utils";
 
 const ItemElem = ({name, image, item_id, showTitle}) => {
 
     return (  
-        <Box component={Link} to={`${item_route}/${item_id}`}
+        <Box component={Link} to={`${item_route}/${item_id}`} 
+            onClick={e => updateAction(item_id, 0)}
             display='flex'
             flexDirection='column'
             alignItems='center'

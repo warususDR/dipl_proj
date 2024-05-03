@@ -44,7 +44,6 @@ const Profile = () => {
                 if(!data.hasOwnProperty('error') && !data.hasOwnProperty('no-rating')) {
                     const ids = data.map(rating => rating.content_id);
                     const api_result = fetchRatedAnime(ids);
-                    console.log('api_res', api_result)
                     setRatedAnime(api_result);
                 }
             }).catch(err => {

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import CharsList from "./CharsList";
+import { updateAction } from "../../utils";
 import { Box, Typography, Button, Rating } from "@mui/material";
 import { useState, useEffect } from "react";
 import { endpoint_url, id_query } from "../../anilistQueries";
@@ -34,6 +35,7 @@ const ItemPage = () => {
                 console.error('Error occured', err);
             }
         )
+        updateAction(item_id, 1);
     }
 
     useEffect(() => {
@@ -76,6 +78,9 @@ const ItemPage = () => {
     }, [item_id]);
 
     const toggleDescription = () => {
+        if(!showDescription) {
+            updateAction(item_id, 2);
+        }
         setShowDescription((prev) => !prev);
     };
 
@@ -172,7 +177,7 @@ const ItemPage = () => {
                     variant='h5' 
                     sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}
                     component={Link}
-                    to={`https://www.youtube.com/watch?v=${animeData.trailer.id}`}>
+                    to={`https://www.youtube.com/watch?v=${animeData.trailer.id}`} onClick={e => updateAction(item_id, 3)}>
 
                     Click here to view the trailer 
                 </Typography>}
