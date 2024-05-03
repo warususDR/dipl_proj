@@ -30,7 +30,6 @@ const SignUp = () => {
             }).then(res => {
                 return res.json()
             }).then(data => {
-                console.log(data);
                 navigate(login_route)
             }).catch(err => {
                 console.error('Error occured', err);

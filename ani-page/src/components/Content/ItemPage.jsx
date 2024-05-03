@@ -4,6 +4,7 @@ import CharsList from "./CharsList";
 import { Box, Typography, Button, Rating } from "@mui/material";
 import { useState, useEffect } from "react";
 import { endpoint_url, id_query } from "../../anilistQueries";
+import { rate_url, content_rating_url } from "../../backendEndpoints";
 import { Link } from "react-router-dom";
 import utils from "../../utils";
 
@@ -11,6 +12,48 @@ const ItemPage = () => {
     const { item_id } = useParams()
     const [showDescription, setShowDescription] = useState(false);
     const [animeData, setAnimeData] = useState('');
+    const [rating, setRating] = useState(null);
+
+    const handleRatingChange = (event, newRating) => {
+        setRating(newRating);
+        fetch(rate_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+            },
+            body: JSON.stringify({content_id: item_id, rating_value: newRating})
+            }).then(res => {
+                return res.json()
+            }).then(data => {
+                if(data.hasOwnProperty('error')) {
+                    alert(data.error);
+                }
+                console.log(data);
+            }).catch(err => {
+                console.error('Error occured', err);
+            }
+        )
+    }
+
+    useEffect(() => {
+        fetch(`${content_rating_url}${item_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+            },
+            }).then(res => {
+                return res.json()
+            }).then(data => {
+                if(data.hasOwnProperty('rating')) {
+                    setRating(data.rating);
+                }
+            }).catch(err => {
+                console.error('Error occured', err);
+            }
+        )
+    }, [item_id])
 
     useEffect(() => {
        fetch(endpoint_url, {
@@ -96,6 +139,8 @@ const ItemPage = () => {
                                 Rate this anime:
                             </Typography>
                             <Rating 
+                                onChange={handleRatingChange}
+                                value={rating}
                                 name={`${item_id}_rating`} 
                                 max={10} 
                                 sx={{

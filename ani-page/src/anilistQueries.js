@@ -1,7 +1,7 @@
 export const endpoint_url = 'https://graphql.anilist.co'
 export const id_query = `
-query ($id: Int) { # Define which variables will be used in the query (id)
-  Media (id: $id, type: ANIME) { # Insert our variables into the query arguments (id) (type: ANIME is hard-coded in the query)
+query ($id: Int) { 
+  Media (id: $id, type: ANIME) { 
     id
     title {
       romaji
@@ -90,6 +90,22 @@ query ($page: Int) {
             }
         }
     }
+}
+`;
+export const ids_query = `
+query ($ids: [Int]) {
+  Page {
+     media(id_in: $ids) {
+      id
+      title {
+          romaji
+          english
+      }
+      coverImage {
+          large
+      }
+    }  
+  }
 }
 `;
 export const search_query = `
