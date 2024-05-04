@@ -1,8 +1,9 @@
 export const signup_url = 'http://localhost:8000/user/sign_up';
 export const login_url = 'http://localhost:8000/user/login';
 export const usr_info = 'http://localhost:8000/user/info';
+export const user_update_url = 'http://localhost:8000/user/update';
 export const rate_url = 'http://localhost:8000/content/rate';
 export const content_rating_url = 'http://localhost:8000/content/rating/';
 export const user_ratings_url = 'http://localhost:8000/content/ratings';
-export const user_actions_url = 'http://localhost:8000/content/actions'
-export const user_act_url = 'http://localhost:8000/content/act'
+export const user_actions_url = 'http://localhost:8000/content/actions';
+export const user_act_url = 'http://localhost:8000/content/act';

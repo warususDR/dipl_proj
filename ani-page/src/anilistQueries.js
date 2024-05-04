@@ -124,3 +124,8 @@ export const search_query = `
         }
     }
 `;
+export const genres_query = `
+    query {
+        GenreCollection
+    }
+`;

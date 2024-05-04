@@ -64,6 +64,28 @@ class UserController {
             res.status(400).json({ error: `Error getting user info: ${error}` });
         }
     }
+
+    async updateUser(req, res) {
+         try {
+            const jwt_token = req.headers.authorization.split(' ')[1];
+            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            const { id } = jwt.verify(jwt_token, secret);
+            const raw_data = req.body;
+            const data = {};
+            for (const key in raw_data) {
+                if (raw_data.hasOwnProperty(key)) {
+                data[key] = raw_data[key];
+                }
+            }
+            const currUser = await db.getDocumentById(User, id);
+            if (!currUser) return res.status(400).json({ error: `Error getting user with id provided: ${error}` });
+            await db.updateDocumentById(User, id, data);
+            res.status(200).json(currUser.toJSON());
+        } catch(error) {
+            console.error('Error updating user info', error);
+            res.status(400).json({ error: `Error updating user info: ${error}` });
+        }
+    }
 }
 
 const userController = new UserController();

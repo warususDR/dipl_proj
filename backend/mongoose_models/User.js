@@ -10,8 +10,6 @@ const UserSchema = new mongoose.Schema({
     avatar: {type: String, required: false},
     signup_date: {type: Date, required: false},
     favorite_genres: {type: [String], required: false},
-    favorite_titles: {type: [String], required: false},
-    favorite_studios: {type: [String], required: false},
 })
 
 export default mongoose.model('User', UserSchema)
