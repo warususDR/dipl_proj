@@ -86,6 +86,36 @@ class UserController {
             res.status(400).json({ error: `Error updating user info: ${error}` });
         }
     }
+
+    async getPrefs(req, res) {
+         try {
+            const jwt_token = req.headers.authorization.split(' ')[1];
+            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            const { id } = jwt.verify(jwt_token, secret);
+            const user = await db.getDocumentById(User, id)
+            if(!user.description || user.description === '' || user.favorite_genres.length === 0) {
+                return res.status(400).json({error: 'No description or genres for user'})
+            }
+            const prefs_url = `http://127.0.0.1:5000/recommend/by-prefs/${id}`
+            let prefs;
+            fetch(prefs_url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                }).then(res => {
+                    return res.json();
+                }).then(data => {
+                    prefs = data;
+                    return res.status(200).json({prefs});
+                }).catch(err => {
+                    console.error('Error occured', err);
+            })
+        } catch(error) {
+            console.error('Error updating user info', error);
+            res.status(400).json({ error: `Error updating user info: ${error}` });
+        }
+    }
 }
 
 const userController = new UserController();

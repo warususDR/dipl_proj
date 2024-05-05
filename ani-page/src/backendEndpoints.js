@@ -7,3 +7,4 @@ export const content_rating_url = 'http://localhost:8000/content/rating/';
 export const user_ratings_url = 'http://localhost:8000/content/ratings';
 export const user_actions_url = 'http://localhost:8000/content/actions';
 export const user_act_url = 'http://localhost:8000/content/act';
+export const user_prefs_url = 'http://localhost:8000/user/preferences';

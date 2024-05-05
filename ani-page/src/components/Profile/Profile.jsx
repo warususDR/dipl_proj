@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import ItemList from "../Home/ItemList";
 import { Box, Typography, Avatar, Button, Dialog, TextField, FormControl, DialogTitle, DialogContent, InputLabel, Select, MenuItem, DialogActions } from "@mui/material";
-import { usr_info, user_ratings_url, user_update_url } from "../../backendEndpoints";
+import { usr_info, user_ratings_url, user_update_url, user_prefs_url } from "../../backendEndpoints";
 import { ids_query, genres_query, endpoint_url } from "../../anilistQueries";
 import { useNavigate } from "react-router-dom";
 import { login_route } from "../Router/Routes";
@@ -10,7 +10,8 @@ import { login_route } from "../Router/Routes";
 const Profile = () => {
     const [userData, setUserData] = useState(null);
     const [ratedAnime, setRatedAnime] = useState(null);
-
+    const [preferredAnimeByDesc, setPreferredAnimeByDesc] = useState(null);
+    const [preferredAnimeByGenre, setPreferredAnimeByGenre] = useState(null);
     const [description, setDescription] = useState('');
     const [preferredGenres, setPreferredGenres] = useState([]);
     const [genres, setGenres] = useState([]);
@@ -38,7 +39,7 @@ const Profile = () => {
                 console.error('Error occured', err);
             }
         )
-    }, [description, preferredGenres])
+    }, [])
 
     useEffect(() => {
         fetch(user_ratings_url, {
@@ -52,8 +53,7 @@ const Profile = () => {
             }).then(async data => {
                 if(!data.hasOwnProperty('error') && !data.hasOwnProperty('no-rating')) {
                     const ids = data.map(rating => rating.content_id);
-                    const api_result = fetchRatedAnime(ids);
-                    setRatedAnime(api_result);
+                    fetchAnimeByIds(ids, setRatedAnime);
                 }
             }).catch(err => {
                 console.error('Error occured', err);
@@ -61,7 +61,7 @@ const Profile = () => {
         )
     }, [])
 
-    const fetchRatedAnime = anime_ids => {
+    const fetchAnimeByIds = (anime_ids, setFunc) => {
         fetch(endpoint_url, {
             method: 'POST',
             headers: {
@@ -77,7 +77,7 @@ const Profile = () => {
         return response.ok ? json : Promise.reject(json);
         });})
         .then((response) => {
-            setRatedAnime(response.data.Page.media);
+            setFunc(response.data.Page.media);
         }).catch(error => console.error('Error occured!', error))
     };
 
@@ -95,12 +95,37 @@ const Profile = () => {
                 if(data.hasOwnProperty('error')) {
                    console.log(data);
                 }
-                else handleDialogClose();
+                else {
+                    handleDialogClose();
+                }
             }).catch(err => {
                 console.error('Error occured', err);
             }
         )
     };
+
+    useEffect(() => {
+        fetch(user_prefs_url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+            },
+            }).then(res => {
+                console.log('res', res)
+                return res.json()
+            }).then(data => {
+                if(data.hasOwnProperty('error')) {
+                   console.log(data);
+                }
+                else {
+                    fetchAnimeByIds(data.prefs.descript_recs, setPreferredAnimeByDesc) 
+                    fetchAnimeByIds(data.prefs.genre_recs, setPreferredAnimeByGenre)            
+                }
+            }).catch(err => {
+                console.error('Error occured', err);
+        })
+    }, [])
 
     const handleDialogOpen = () => {
         setDialogOpen(true);
@@ -186,7 +211,7 @@ const Profile = () => {
                             </Typography>
                         </Box>
                     </Box>
-                    {userData.description && <Box>
+                    {userData.description && userData.favorite_genres && <Box>
                         <Typography variant='h6' sx={{ fontFamily: 'Quicksand', color: 'white', marginBottom: '10px' }}>
                             Description: {userData.description}
                         </Typography>
@@ -201,6 +226,16 @@ const Profile = () => {
                         >
                             {userData.description ?  'Update preferences' : 'Click if you want to help us know more about you'}
                     </Button>
+                    {preferredAnimeByDesc && preferredAnimeByGenre && <Box>
+                        <Typography variant='h5' sx={{ fontFamily: 'Quicksand', color: 'white', marginBottom: '10px' }}>
+                            What you might enjoy based on genres you like:
+                        </Typography>
+                        <ItemList itemList={preferredAnimeByGenre} showTitle={true}></ItemList>
+                        <Typography variant='h5' sx={{ fontFamily: 'Quicksand', color: 'white', marginBottom: '10px' }}>
+                            What might have something similar to your description:
+                        </Typography>
+                        <ItemList itemList={preferredAnimeByDesc} showTitle={true}></ItemList>
+                    </Box>}
                     {ratedAnime && <Box>
                         <Typography variant='h5' sx={{ fontFamily: 'Quicksand', color: 'white', marginBottom: '10px' }}>
                             Anime you rated recently:
