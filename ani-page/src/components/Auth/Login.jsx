@@ -11,7 +11,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const LogIn = (event) => {
+    const LogIn = event => {
         event.preventDefault()
         fetch(login_url, {
             method: 'POST',

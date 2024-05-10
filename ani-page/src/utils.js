@@ -1,11 +1,9 @@
 import { user_act_url } from "./backendEndpoints";
 
-class Utils {
-    stripHtml(html) {
-         let doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || '';
-    }
-}
+export const stripHtml = html => {
+    let doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+};
 export const updateAction = (content_id, action_id) => {
     fetch(user_act_url, {
         method: 'POST',
@@ -25,5 +23,3 @@ export const updateAction = (content_id, action_id) => {
         }
     )
 };
-const utils = new Utils();
-export default utils;

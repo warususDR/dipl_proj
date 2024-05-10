@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { endpoint_url, id_query } from "../../anilistQueries";
 import { rate_url, content_rating_url } from "../../backendEndpoints";
 import { Link } from "react-router-dom";
-import utils from "../../utils";
+import { stripHtml } from "../../utils";
 
 const ItemPage = () => {
     const { item_id } = useParams()
@@ -167,7 +167,7 @@ const ItemPage = () => {
                                 variant='h6' 
                                 sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 10, color: 'white' }}>
 
-                                {utils.stripHtml(animeData.description)}
+                                {stripHtml(animeData.description)}
                             </Typography>
                         )}
                     </Box>

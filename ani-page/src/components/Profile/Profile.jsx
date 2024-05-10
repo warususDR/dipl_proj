@@ -19,7 +19,7 @@ const Profile = () => {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
+    const fetchUsrInfo = () => {
         fetch(usr_info, {
             method: 'GET',
             headers: {
@@ -30,7 +30,7 @@ const Profile = () => {
                 return res.json()
             }).then(data => {
                 if(data.hasOwnProperty('_id')) {
-                   setUserData(data)
+                    setUserData(data)
                 }
                 else {
                     navigate(login_route);
@@ -39,6 +39,10 @@ const Profile = () => {
                 console.error('Error occured', err);
             }
         )
+    };
+
+    useEffect(() => {
+        fetchUsrInfo()
     }, [])
 
     useEffect(() => {
@@ -97,6 +101,8 @@ const Profile = () => {
                 }
                 else {
                     handleDialogClose();
+                    fetchUsrInfo();
+                    fetchPrefs();
                 }
             }).catch(err => {
                 console.error('Error occured', err);
@@ -104,7 +110,7 @@ const Profile = () => {
         )
     };
 
-    useEffect(() => {
+    const fetchPrefs = () => {
         fetch(user_prefs_url, {
             method: 'GET',
             headers: {
@@ -125,6 +131,10 @@ const Profile = () => {
             }).catch(err => {
                 console.error('Error occured', err);
         })
+    }
+
+    useEffect(() => {
+        fetchPrefs()
     }, [])
 
     const handleDialogOpen = () => {
@@ -246,7 +256,7 @@ const Profile = () => {
             </Box>}
 
             <Dialog open={dialogOpen} onClose={handleDialogClose}>
-                <DialogTitle>Set Your Preferences</DialogTitle>
+                <DialogTitle sx={{ fontFamily: 'Quicksand' }}>Set Your Preferences</DialogTitle>
                 <DialogContent>
                     <Box display='flex' flexDirection='column' marginBottom={2}>
                         <TextField
@@ -255,16 +265,34 @@ const Profile = () => {
                             onChange={e => setDescription(e.target.value)}
                             required
                             margin='normal'
+                             sx={{
+                                '& .MuiInputBase-root': {
+                                    fontFamily: 'Quicksand', 
+                                },
+                                '& .MuiInputLabel-root': {
+                                    fontFamily: 'Quicksand', 
+                                }
+                            }}
                         />
-                        <FormControl margin='normal' required>
-                            <InputLabel>Preferred Genres</InputLabel>
+                        <FormControl variant="outlined" margin='normal' required>
+                            <InputLabel id='genres_label' sx={{ fontFamily: 'Quicksand' }}>Preferred Genres</InputLabel>
                             <Select
+                                labelId='genres_label'
+                                label='Preferred Genres'
                                 multiple
                                 value={preferredGenres}
                                 onChange={e => setPreferredGenres(e.target.value)}
+                                sx={{
+                                    '& .MuiSelect-select': {
+                                        fontFamily: 'Quicksand',
+                                    },
+                                    '& .MuiOutlinedInput-root': {
+                                        fontFamily: 'Quicksand',
+                                    }
+                                }}
                             >
                                 {genres.map(genre => (
-                                    <MenuItem key={genre} value={genre}>
+                                    <MenuItem key={genre} value={genre} sx={{ fontFamily: 'Quicksand' }}>
                                         {genre}
                                     </MenuItem>
                                 ))}
@@ -273,10 +301,10 @@ const Profile = () => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleDialogClose} color='primary'>
+                    <Button onClick={handleDialogClose} color='primary' sx={{ fontFamily: 'Quicksand' }}>
                         Cancel
                     </Button>
-                    <Button onClick={handleFormSubmit} color='primary'>
+                    <Button onClick={handleFormSubmit} color='primary' sx={{ fontFamily: 'Quicksand' }}>
                         Save
                     </Button>
                 </DialogActions>

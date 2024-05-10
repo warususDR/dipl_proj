@@ -15,7 +15,7 @@ const SignUp = () => {
     const [gender, setGender] = useState('');
     const navigate = useNavigate();
 
-    const SignUp = (event) => {
+    const SignUp = event => {
         if(confirm_password !== password) {
             alert("Passwords don't match!");
             return;
@@ -75,37 +75,61 @@ const SignUp = () => {
                         autoComplete='password' 
                         onChange={setConfirmPassword}>
                     </CustomTextField>
-                    <FormControl 
+                    <FormControl
                         variant='outlined' 
                         margin='normal' 
                         required
-                        sx={{ width: '100%',  
-                              '& .MuiInputLabel-root': {
-                                    color: 'white',
-                                    fontFamily: 'Quicksand',
-                                },
-                                '& .MuiOutlinedInput-notchedOutline': {
+                        sx={{
+                            width: '100%',
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                color: 'white', 
+                                fontFamily: 'Quicksand',
+                                '& fieldset': {
                                     borderColor: 'white',
-                                    fontFamily: 'Quicksand',
                                 },
-                                '& .MuiSelect-select': {
-                                    color: 'white',
-                                    fontFamily: 'Quicksand',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                        borderWidth: 2,
+                                    },
                                 },
-                                '& .MuiSvgIcon-root': {
-                                    color: 'white',
-                                    fontFamily: 'Quicksand',
-                                }, 
-                            }}>
+                                '&.Mui-focused': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    color: 'white', 
+                                },
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                                fontFamily: 'Quicksand',
+                                '&.Mui-focused': {
+                                    color: 'white', 
+                                },
+                            },
+                            '& .MuiSelect-select': {
+                                color: 'white',
+                                fontFamily: 'Quicksand',
+                            },
+                            '& .MuiSvgIcon-root': {
+                                color: 'white',
+                                fontFamily: 'Quicksand',
+                            }
+                        }}
+                    >
                         <InputLabel id="gender-label">Gender</InputLabel>
                         <Select
                             labelId="gender-label"
                             id="gender-select"
                             value={gender}
                             onChange={handleGenderChange}
-                            label="Gender">
-                            <MenuItem value="male">Male</MenuItem>
-                            <MenuItem value="female">Female</MenuItem>
+                            label="Gender"
+                        >
+                            <MenuItem sx = { { fontFamily: 'Quicksand'} } value="male">Male</MenuItem>
+                            <MenuItem sx = { { fontFamily: 'Quicksand'} } value="female">Female</MenuItem>
                         </Select>
                     </FormControl>
                     <Button 
