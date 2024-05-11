@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
-from recommendation_algs import fetch_best_anime, recommend_by_genres, recommend_by_description
+import pandas as pd
+from recommendation_algs import prepare_anime_set, recommend_by_genres, recommend_by_description, recommend_similar_content
 
 # server config
 app = Flask(__name__)
@@ -11,7 +12,7 @@ mongo = PyMongo(app)
 #api endpoints
 @app.route("/")
 def hello_world():
-    return { "message": "recommender api"}
+    return { "message": "recommender api" }
 
 @app.route("/recommend/by-prefs/<user_id>", methods=["GET"])
 def recommend_by_prefs(user_id):
@@ -26,11 +27,15 @@ def recommend_by_prefs(user_id):
     else:
         description = user_data["description"]
         pref_genres = user_data["favorite_genres"]
-        anime_set = []
-        for i in range(1, 3):
-            anime_set += fetch_best_anime(i)
-        filtered_set = list(filter(lambda anime: anime["genres"] and anime["description"], anime_set))
-        genres_recs = recommend_by_genres(filtered_set, pref_genres)
-        description_recs = recommend_by_description(filtered_set, description)
-        
+        anime_set = prepare_anime_set()
+        genres_recs = recommend_by_genres(anime_set, pref_genres)
+        description_recs = recommend_by_description(anime_set, description)
         return {"genre_recs": genres_recs[:10], "descript_recs": description_recs[:10]}, 200 
+    
+
+@app.route("/recommend/similar-items", methods=["POST"])
+def recommend_similar_items():
+    item_data = request.get_json()
+    anime_set = prepare_anime_set()
+    recs = recommend_similar_content(anime_set, item_data)
+    return {"recs": recs[:10]}, 200

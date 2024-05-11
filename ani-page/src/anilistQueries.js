@@ -37,6 +37,11 @@ query ($id: Int) {
     status
     episodes
     source
+    tags {
+      id
+      name
+      description
+    }
   }
 }
 `;

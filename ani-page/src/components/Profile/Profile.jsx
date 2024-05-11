@@ -3,9 +3,10 @@ import Navbar from "../Navbar/Navbar";
 import ItemList from "../Home/ItemList";
 import { Box, Typography, Avatar, Button, Dialog, TextField, FormControl, DialogTitle, DialogContent, InputLabel, Select, MenuItem, DialogActions } from "@mui/material";
 import { usr_info, user_ratings_url, user_update_url, user_prefs_url } from "../../backendEndpoints";
-import { ids_query, genres_query, endpoint_url } from "../../anilistQueries";
+import { genres_query, endpoint_url } from "../../anilistQueries";
 import { useNavigate } from "react-router-dom";
 import { login_route } from "../Router/Routes";
+import { fetchAnimeByIds } from "../../utils";
 
 const Profile = () => {
     const [userData, setUserData] = useState(null);
@@ -65,25 +66,7 @@ const Profile = () => {
         )
     }, [])
 
-    const fetchAnimeByIds = (anime_ids, setFunc) => {
-        fetch(endpoint_url, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'},
-            body: JSON.stringify({
-            query: ids_query,
-            variables: { ids: anime_ids }
-            })
-        },
-        )
-        .then((response) => {return response.json().then(function (json) {
-        return response.ok ? json : Promise.reject(json);
-        });})
-        .then((response) => {
-            setFunc(response.data.Page.media);
-        }).catch(error => console.error('Error occured!', error))
-    };
+    
 
     const handleFormSubmit = event => {
         fetch(user_update_url, {

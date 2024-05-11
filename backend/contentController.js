@@ -111,6 +111,29 @@ class ContentController {
             res.status(400).json({ error: `Get action error: ${error}` });
         }
     }
+    async getSimilar(req, res) {
+        try {
+            const similar_url = 'http://127.0.0.1:5000/recommend/similar-items'
+            let similar;
+            fetch(similar_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(req.body)
+                }).then(res => {
+                    return res.json();
+                }).then(data => {
+                    similar = data;
+                    return res.status(200).json({similar});
+                }).catch(err => {
+                    console.error('Error occured', err);
+            })
+        } catch(error) {
+            console.error('Get similar error', error);
+            res.status(400).json({ error: `Get similar error: ${error}` });
+        }
+    }
 }
 
 const contentController = new ContentController();

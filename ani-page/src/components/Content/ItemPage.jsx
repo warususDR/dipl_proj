@@ -1,19 +1,21 @@
 import { useParams } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import CharsList from "./CharsList";
-import { updateAction } from "../../utils";
+import { updateAction, fetchAnimeByIds } from "../../utils";
 import { Box, Typography, Button, Rating } from "@mui/material";
 import { useState, useEffect } from "react";
 import { endpoint_url, id_query } from "../../anilistQueries";
-import { rate_url, content_rating_url } from "../../backendEndpoints";
+import { rate_url, content_rating_url, content_similar_url } from "../../backendEndpoints";
 import { Link } from "react-router-dom";
 import { stripHtml } from "../../utils";
+import ItemList from "../Home/ItemList";
 
 const ItemPage = () => {
     const { item_id } = useParams()
     const [showDescription, setShowDescription] = useState(false);
-    const [animeData, setAnimeData] = useState('');
+    const [animeData, setAnimeData] = useState(null);
     const [rating, setRating] = useState(null);
+    const [similarAnime, setSimilarAnime] = useState(null)
 
     const handleRatingChange = (event, newRating) => {
         setRating(newRating);
@@ -57,6 +59,26 @@ const ItemPage = () => {
         )
     }, [item_id])
 
+    const getSimilarAnimeIds = animeData => {
+        fetch(content_similar_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(animeData)
+            }).then(res => {
+                return res.json()
+            }).then(data => {
+                if(data.hasOwnProperty('error')) {
+                    console.log(data)
+                }
+                else fetchAnimeByIds(data.similar.recs, setSimilarAnime)
+            }).catch(err => {
+                console.error('Error occured', err);
+            }
+        )
+    };
+
     useEffect(() => {
        fetch(endpoint_url, {
                 method: 'POST',
@@ -74,6 +96,7 @@ const ItemPage = () => {
         });})
         .then((response) => {
             setAnimeData(response.data.Media);
+            getSimilarAnimeIds(response.data.Media);
         }).catch(error => console.error('Error occured!', error))
     }, [item_id]);
 
@@ -181,10 +204,17 @@ const ItemPage = () => {
 
                     Click here to view the trailer 
                 </Typography>}
+                {similarAnime && <Box> 
+                    <Typography 
+                        variant='h4' 
+                        sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}>
+                        Similar Anime: 
+                    </Typography>
+                    <ItemList itemList={similarAnime} showTitle={true}></ItemList>
+                </Box>}
                 <Typography 
                     variant='h4' 
                     sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}>
-
                     Characters: 
                 </Typography>
                 <CharsList charsList={animeData.characters.nodes}></CharsList>

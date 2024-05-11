@@ -1,4 +1,5 @@
 import { user_act_url } from "./backendEndpoints";
+import { endpoint_url, ids_query } from "./anilistQueries";
 
 export const stripHtml = html => {
     let doc = new DOMParser().parseFromString(html, 'text/html');
@@ -23,3 +24,23 @@ export const updateAction = (content_id, action_id) => {
         }
     )
 };
+
+export const fetchAnimeByIds = (anime_ids, setFunc) => {
+        fetch(endpoint_url, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'},
+            body: JSON.stringify({
+            query: ids_query,
+            variables: { ids: anime_ids }
+            })
+        },
+        )
+        .then((response) => {return response.json().then(function (json) {
+        return response.ok ? json : Promise.reject(json);
+        });})
+        .then((response) => {
+            setFunc(response.data.Page.media);
+        }).catch(error => console.error('Error occured!', error))
+    };
