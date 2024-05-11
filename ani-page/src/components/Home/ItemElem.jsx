@@ -32,7 +32,6 @@ const ItemElem = ({name, image, item_id, showTitle}) => {
                 variant='h6'
                 sx={{ fontFamily: 'Quicksand', color: 'white', textAlign: 'center' }}
             >
-
                 {name}
             </Typography>}
         </Box>

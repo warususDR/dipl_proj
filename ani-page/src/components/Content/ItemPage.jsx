@@ -16,6 +16,7 @@ const ItemPage = () => {
     const [animeData, setAnimeData] = useState(null);
     const [rating, setRating] = useState(null);
     const [similarAnime, setSimilarAnime] = useState(null)
+    const [similarTopicAnime, setSimilarTopicAnime] = useState(null)
 
     const handleRatingChange = (event, newRating) => {
         setRating(newRating);
@@ -40,6 +41,36 @@ const ItemPage = () => {
         updateAction(item_id, 1);
     }
 
+    const toggleDescription = () => {
+        if(!showDescription) {
+            updateAction(item_id, 2);
+        }
+        setShowDescription((prev) => !prev);
+    };
+
+    const getSimilarAnimeIds = animeData => {
+        fetch(content_similar_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(animeData)
+            }).then(res => {
+                return res.json();
+            }).then(data => {
+                if(data.hasOwnProperty('error')) {
+                    console.log(data);
+                }
+                else {
+                    fetchAnimeByIds(data.similar.term_recs.filter(id => id !== parseInt(item_id)), setSimilarAnime);
+                    fetchAnimeByIds(data.similar.topic_recs.filter(id => id !== parseInt(item_id)), setSimilarTopicAnime);
+                }
+            }).catch(err => {
+                console.error('Error occured', err);
+            }
+        )
+    };
+
     useEffect(() => {
         fetch(`${content_rating_url}${item_id}`, {
             method: 'GET',
@@ -58,26 +89,6 @@ const ItemPage = () => {
             }
         )
     }, [item_id])
-
-    const getSimilarAnimeIds = animeData => {
-        fetch(content_similar_url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(animeData)
-            }).then(res => {
-                return res.json()
-            }).then(data => {
-                if(data.hasOwnProperty('error')) {
-                    console.log(data)
-                }
-                else fetchAnimeByIds(data.similar.recs, setSimilarAnime)
-            }).catch(err => {
-                console.error('Error occured', err);
-            }
-        )
-    };
 
     useEffect(() => {
        fetch(endpoint_url, {
@@ -99,13 +110,6 @@ const ItemPage = () => {
             getSimilarAnimeIds(response.data.Media);
         }).catch(error => console.error('Error occured!', error))
     }, [item_id]);
-
-    const toggleDescription = () => {
-        if(!showDescription) {
-            updateAction(item_id, 2);
-        }
-        setShowDescription((prev) => !prev);
-    };
 
     return (  
         <div>
@@ -204,13 +208,21 @@ const ItemPage = () => {
 
                     Click here to view the trailer 
                 </Typography>}
-                {similarAnime && <Box> 
+                {similarAnime && <Box margin='normal'> 
                     <Typography 
                         variant='h4' 
                         sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}>
                         Similar Anime: 
                     </Typography>
                     <ItemList itemList={similarAnime} showTitle={true}></ItemList>
+                </Box>}
+                {similarTopicAnime && <Box margin='normal'> 
+                    <Typography 
+                        variant='h4' 
+                        sx={{ fontFamily: 'Quicksand', marginBottom: 2, marginLeft: 2, color: 'white' }}>
+                        This anime might contain a similar topic: 
+                    </Typography>
+                    <ItemList itemList={similarTopicAnime} showTitle={true}></ItemList>
                 </Box>}
                 <Typography 
                     variant='h4' 

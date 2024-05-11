@@ -8,4 +8,5 @@ export const user_ratings_url = 'http://localhost:8000/content/ratings';
 export const user_actions_url = 'http://localhost:8000/content/actions';
 export const user_act_url = 'http://localhost:8000/content/act';
 export const user_prefs_url = 'http://localhost:8000/user/preferences';
+export const user_personal_recs = 'http://localhost:8000/user/personal_recs'
 export const content_similar_url = 'http://localhost:8000/content/similar'

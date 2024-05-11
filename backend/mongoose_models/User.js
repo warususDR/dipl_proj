@@ -7,7 +7,6 @@ const UserSchema = new mongoose.Schema({
     gender: {type: String, required: true},
     birth_date: {type: Date, required: true},
     description: {type: String, required: false},
-    avatar: {type: String, required: false},
     signup_date: {type: Date, required: false},
     favorite_genres: {type: [String], required: false},
 })

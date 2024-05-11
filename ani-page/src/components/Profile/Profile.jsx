@@ -17,56 +17,17 @@ const Profile = () => {
     const [preferredGenres, setPreferredGenres] = useState([]);
     const [genres, setGenres] = useState([]);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const avatarPath = require('./../../images/avatar.png');
 
     const navigate = useNavigate();
 
-    const fetchUsrInfo = () => {
-        fetch(usr_info, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-            },
-            }).then(res => {
-                return res.json()
-            }).then(data => {
-                if(data.hasOwnProperty('_id')) {
-                    setUserData(data)
-                }
-                else {
-                    navigate(login_route);
-                }
-            }).catch(err => {
-                console.error('Error occured', err);
-            }
-        )
+    const handleDialogOpen = () => {
+        setDialogOpen(true);
     };
 
-    useEffect(() => {
-        fetchUsrInfo()
-    }, [])
-
-    useEffect(() => {
-        fetch(user_ratings_url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-            },
-            }).then(res => {
-                return res.json()
-            }).then(async data => {
-                if(!data.hasOwnProperty('error') && !data.hasOwnProperty('no-rating')) {
-                    const ids = data.map(rating => rating.content_id);
-                    fetchAnimeByIds(ids, setRatedAnime);
-                }
-            }).catch(err => {
-                console.error('Error occured', err);
-            }
-        )
-    }, [])
-
-    
+    const handleDialogClose = () => {
+        setDialogOpen(false);
+    };
 
     const handleFormSubmit = event => {
         fetch(user_update_url, {
@@ -93,6 +54,28 @@ const Profile = () => {
         )
     };
 
+    const fetchUsrInfo = () => {
+        fetch(usr_info, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+            },
+            }).then(res => {
+                return res.json()
+            }).then(data => {
+                if(data.hasOwnProperty('_id')) {
+                    setUserData(data)
+                }
+                else {
+                    navigate(login_route);
+                }
+            }).catch(err => {
+                console.error('Error occured', err);
+            }
+        )
+    };
+
     const fetchPrefs = () => {
         fetch(user_prefs_url, {
             method: 'GET',
@@ -101,7 +84,6 @@ const Profile = () => {
                 'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
             },
             }).then(res => {
-                console.log('res', res)
                 return res.json()
             }).then(data => {
                 if(data.hasOwnProperty('error')) {
@@ -115,22 +97,6 @@ const Profile = () => {
                 console.error('Error occured', err);
         })
     }
-
-    useEffect(() => {
-        fetchPrefs()
-    }, [])
-
-    const handleDialogOpen = () => {
-        setDialogOpen(true);
-    };
-
-    const handleDialogClose = () => {
-        setDialogOpen(false);
-    };
-
-    useEffect(() => {
-        fetchGenres();
-    }, []);
 
     const fetchGenres = () => {
         fetch(endpoint_url, {
@@ -150,6 +116,38 @@ const Profile = () => {
             setGenres(response.data.GenreCollection);
         }).catch(error => console.error('Error occured!', error))
     };
+
+    useEffect(() => {
+        fetchUsrInfo()
+    }, [])
+
+    useEffect(() => {
+        fetch(user_ratings_url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+            },
+            }).then(res => {
+                return res.json()
+            }).then(async data => {
+                if(!data.hasOwnProperty('error') && !data.hasOwnProperty('no-rating')) {
+                    const ids = data.map(rating => rating.content_id);
+                    fetchAnimeByIds(ids, setRatedAnime);
+                }
+            }).catch(err => {
+                console.error('Error occured', err);
+            }
+        )
+    }, [])   
+
+    useEffect(() => {
+        fetchPrefs()
+    }, [])
+
+    useEffect(() => {
+        fetchGenres();
+    }, []);
 
     return (
         <Box>
@@ -182,7 +180,7 @@ const Profile = () => {
                     <Box display='flex' flexDirection='row' textAlign='left' sx={ {margin: '10px'} }>
                         <Avatar
                         alt={userData.nickname}
-                        src={userData.avatar}
+                        src={avatarPath}
                         sx={{
                             width: 100,
                             height: 100,

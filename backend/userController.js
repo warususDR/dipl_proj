@@ -112,10 +112,43 @@ class UserController {
                     console.error('Error occured', err);
             })
         } catch(error) {
-            console.error('Error updating user info', error);
-            res.status(400).json({ error: `Error updating user info: ${error}` });
+            console.error('Error getting recommendations by preferences', error);
+            res.status(400).json({ error: `Error getting recommendations by preferences: ${error}` });
         }
     }
+
+    async getPersonalRecs(req, res) {
+         try {
+            const jwt_token = req.headers.authorization.split(' ')[1];
+            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            const { id } = jwt.verify(jwt_token, secret);
+            const user = await db.getDocumentById(User, id)
+            const collab_url = `http://127.0.0.1:5000/recommend/collaborative/${id}`
+            let recs;
+            fetch(collab_url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                }).then(res => {
+                    return res.json();
+                }).then(data => {
+                    if  (data.hasOwnProperty('not_enough_ratings')) {
+                        return res.status(200).json({"not_enough_ratings": []})
+                    }
+                    else {
+                        recs = data;
+                        return res.status(200).json({recs});
+                    }
+                }).catch(err => {
+                    console.error('Error occured', err);
+            })
+        } catch(error) {
+            console.error('Error getting personal recommendations', error);
+            res.status(400).json({ error: `Error getting personal recommendations: ${error}` });
+        }
+    }
+
 }
 
 const userController = new UserController();
