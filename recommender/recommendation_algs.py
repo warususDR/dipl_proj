@@ -7,6 +7,15 @@ from surprise.model_selection import cross_validate
 import pandas as pd
 import ast
 import numpy as np
+import nltk
+import joblib
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+
+# Initialize NLTK tools
+stop_words = set(stopwords.words('english'))
+lemmatizer = WordNetLemmatizer()
 
 '''
 anilist_api_url = 'https://graphql.anilist.co'
@@ -39,6 +48,12 @@ def strip_html(html):
     text = re.sub('<[^<]+?>', '', html)
     return re.sub(r'\s+', ' ', text)
 
+def preprocess_corpus(text):
+    text = text.lower()
+    text = re.sub(r'\W', ' ', text)
+    words = word_tokenize(text)
+    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words] 
+    return ' '.join(words)
     
 def prepare_anime_set():
     anime_set = pd.read_csv("anilist_dataset.csv")
@@ -106,16 +121,24 @@ def prepare_target_soup(target_data):
 
 # lda
 
-def recommend_similar_content_lda(anime_data, target_data):
-    anime_data = anime_data[anime_data["mean_score"] > 75]
-    anime_texts = prepare_anime_soup(anime_data)
-    target_combined_text = prepare_target_soup(target_data)
-    corpus = anime_texts + [target_combined_text]
+def recommend_similar_content_lda(anime_data, target_data, model_path='anime_lda.pkl', vectorizer_path='anime_count.pkl'):
+    anime_data = anime_data[anime_data["mean_score"] > 70]
+    anime_descriptions = anime_data["description"].tolist()
+    anime_texts = list(map(lambda desc: strip_html(desc.strip()), anime_descriptions))
+    target_text = strip_html(target_data["description"].strip())
+    corpus = anime_texts + [target_text]
+    corpus = list(map(lambda item: preprocess_corpus(item), corpus))
+    print(corpus[-1])
     ids = anime_data["id"].tolist()
-    vectorizer = CountVectorizer(stop_words='english', lowercase=True)
-    matrix = vectorizer.fit_transform(corpus)
-    lda = LatentDirichletAllocation(n_components=10, learning_method="online", random_state=0)
-    lda_result = lda.fit_transform(matrix)
+    #vectorizer = CountVectorizer()
+    #matrix = vectorizer.fit_transform(corpus)
+    #lda = LatentDirichletAllocation(n_components=30, learning_method="online", random_state=0)
+    #lda.fit(matrix)
+    #lda_result = lda.transform(matrix)
+    vectorizer = joblib.load(vectorizer_path)
+    lda = joblib.load(model_path)
+    matrix = vectorizer.transform(corpus)
+    lda_result = lda.transform(matrix)
     similarity_scores = cosine_similarity(lda_result[-1].reshape(1, -1), lda_result[:-1])
     id_sim_dict = dict(zip(ids, similarity_scores.flatten()))
     sorted_dict = dict(sorted(id_sim_dict.items(), key=lambda item: item[1], reverse=True))
@@ -124,7 +147,7 @@ def recommend_similar_content_lda(anime_data, target_data):
 # tf-idf
 
 def recommend_similar_content_tfidf(anime_data, target_data):
-    anime_data = anime_data[anime_data["mean_score"] > 75]
+    anime_data = anime_data[anime_data["mean_score"] > 70]
     anime_texts = prepare_anime_soup(anime_data)
     target_combined_text = prepare_target_soup(target_data)
     corpus = anime_texts + [target_combined_text]
@@ -172,7 +195,7 @@ def find_similar_anime(user_ratings, rated_anime, anime_data):
         
 def recommend_collab(user_ratings, rated_anime, anime_data):
     similar_anime_ids = find_similar_anime(user_ratings, rated_anime, anime_data)
-    anime_data = anime_data[anime_data["average_score"] > 70]
+    #anime_data = anime_data[anime_data["average_score"] > 70]
     avg_scores = anime_data["average_score"].tolist()
     ids = anime_data["id"].tolist()
     id_score = dict(zip(ids, avg_scores))
