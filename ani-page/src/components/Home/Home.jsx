@@ -2,16 +2,17 @@ import Navbar from "../Navbar/Navbar";
 import { Box, Button, Typography } from "@mui/material";
 import ItemList from "./ItemList";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { all_query, popular_query, endpoint_url } from "../../anilistQueries";
 import { user_personal_recs } from "../../backendEndpoints";
 import { login_route } from "../Router/Routes";
-import { fetchAnimeByIds } from "../../utils";
+import { fetchAnimeByIds, fetchRatings } from "../../utils";
 
 const Home = () => {
     const [popularData, setPopularData] = useState([]);
     const [allData, setAllData] = useState([]);
     const [recAnime, setRecAnime] = useState(null);
+    const [ratedAnime, setRatedAnime] = useState(null)
     const [currentPage, setCurrentPage] = useState(() => {
         const savedPage = localStorage.getItem('currentPage');
         return savedPage ? parseInt(savedPage) : 1;
@@ -32,12 +33,14 @@ const Home = () => {
     };
 
     const fetchRecs = () => {
+        console.log(ratedAnime);
         fetch(user_personal_recs, {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
             },
+            body: JSON.stringify({ratedAnime})
             }).then(res => {
                 return res.json()
             }).then(data => {
@@ -59,8 +62,14 @@ const Home = () => {
     }, [navigate])
 
     useEffect(() => {
-        fetchRecs()
+        fetchRatings(setRatedAnime);
     }, [])
+
+    useEffect(() => {
+        if (ratedAnime !== null) {
+            fetchRecs();
+        }
+    }, [ratedAnime]);
 
     useEffect(() => {
        fetch(endpoint_url, {

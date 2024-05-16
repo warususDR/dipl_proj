@@ -8,6 +8,6 @@ userRouter.post('/sign_up', userController.signUp);
 userRouter.get('/info', userController.getInfo);
 userRouter.post('/update', userController.updateUser);
 userRouter.get('/preferences', userController.getPrefs);
-userRouter.get('/personal_recs', userController.getPersonalRecs);
+userRouter.post('/personal_recs', userController.getPersonalRecs);
 
 export default userRouter;

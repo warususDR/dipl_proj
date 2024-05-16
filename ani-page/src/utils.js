@@ -1,4 +1,4 @@
-import { user_act_url } from "./backendEndpoints";
+import { user_act_url, user_ratings_url } from "./backendEndpoints";
 import { endpoint_url, ids_query } from "./anilistQueries";
 
 export const stripHtml = html => {
@@ -44,3 +44,23 @@ export const fetchAnimeByIds = (anime_ids, setFunc) => {
             setFunc(response.data.Page.media);
         }).catch(error => console.error('Error occured!', error))
     };
+
+export const fetchRatings = setFunc => {
+    fetch(user_ratings_url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+        },
+        }).then(res => {
+            return res.json()
+        }).then(async data => {
+            if(!data.hasOwnProperty('error') && !data.hasOwnProperty('no-rating')) {
+                const ids = data.map(rating => rating.content_id);
+                fetchAnimeByIds(ids, setFunc);
+            }
+        }).catch(err => {
+            console.error('Error occured', err);
+        }
+    )
+}

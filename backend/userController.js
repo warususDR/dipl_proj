@@ -54,7 +54,7 @@ class UserController {
     async getInfo(req, res) {
         try {
             const jwt_token = req.headers.authorization.split(' ')[1];
-            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            //if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
             const { id } = jwt.verify(jwt_token, secret);
             const currUser = await db.getDocumentById(User, id);
             if (!currUser) return res.status(400).json({ error: `Error getting user with id provided: ${error}` });
@@ -68,7 +68,7 @@ class UserController {
     async updateUser(req, res) {
          try {
             const jwt_token = req.headers.authorization.split(' ')[1];
-            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            //if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
             const { id } = jwt.verify(jwt_token, secret);
             const raw_data = req.body;
             const data = {};
@@ -90,7 +90,7 @@ class UserController {
     async getPrefs(req, res) {
          try {
             const jwt_token = req.headers.authorization.split(' ')[1];
-            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            //if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
             const { id } = jwt.verify(jwt_token, secret);
             const user = await db.getDocumentById(User, id)
             if(!user.description || user.description === '' || user.favorite_genres.length === 0) {
@@ -120,16 +120,17 @@ class UserController {
     async getPersonalRecs(req, res) {
          try {
             const jwt_token = req.headers.authorization.split(' ')[1];
-            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
+            //if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
             const { id } = jwt.verify(jwt_token, secret);
-            const user = await db.getDocumentById(User, id)
+            await db.getDocumentById(User, id)
             const collab_url = `http://127.0.0.1:5000/recommend/collaborative/${id}`
             let recs;
             fetch(collab_url, {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify(req.body)
                 }).then(res => {
                     return res.json();
                 }).then(data => {

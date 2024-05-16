@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import ItemList from "../Home/ItemList";
 import { Box, Typography, Avatar, Button, Dialog, TextField, FormControl, DialogTitle, DialogContent, InputLabel, Select, MenuItem, DialogActions } from "@mui/material";
-import { usr_info, user_ratings_url, user_update_url, user_prefs_url } from "../../backendEndpoints";
+import { usr_info, user_update_url, user_prefs_url } from "../../backendEndpoints";
 import { genres_query, endpoint_url } from "../../anilistQueries";
 import { useNavigate } from "react-router-dom";
 import { login_route } from "../Router/Routes";
-import { fetchAnimeByIds } from "../../utils";
+import { fetchAnimeByIds, fetchRatings } from "../../utils";
 
 const Profile = () => {
     const [userData, setUserData] = useState(null);
@@ -122,23 +122,7 @@ const Profile = () => {
     }, [])
 
     useEffect(() => {
-        fetch(user_ratings_url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-            },
-            }).then(res => {
-                return res.json()
-            }).then(async data => {
-                if(!data.hasOwnProperty('error') && !data.hasOwnProperty('no-rating')) {
-                    const ids = data.map(rating => rating.content_id);
-                    fetchAnimeByIds(ids, setRatedAnime);
-                }
-            }).catch(err => {
-                console.error('Error occured', err);
-            }
-        )
+        fetchRatings(setRatedAnime)
     }, [])   
 
     useEffect(() => {

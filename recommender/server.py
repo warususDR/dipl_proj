@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
-import pandas as pd
 from recommendation_algs import prepare_anime_set, recommend_by_genres, recommend_by_description, recommend_similar_content_lda,recommend_similar_content_tfidf, recommend_collab
 
 # server config
@@ -42,8 +41,9 @@ def recommend_similar_items():
     return {"topic_recs": topic_recs[:10], "term_recs": term_recs[:10]}, 200
 
 
-@app.route("/recommend/collaborative/<user_id>", methods=["GET"])
+@app.route("/recommend/collaborative/<user_id>", methods=["POST"])
 def recommend_collaborative(user_id):
+    print("entered here")
     try:
         user_ratings = mongo.db.userratings.find_one({ "user_id": ObjectId(user_id)})
     except Exception as err:
@@ -56,5 +56,6 @@ def recommend_collaborative(user_id):
         return {"not_enough_ratings": []}, 200
     else:
         anime_set = prepare_anime_set()
-        rec_ids = recommend_collab(user_ratings, anime_set)
+        rated_anime_json = request.get_json()
+        rec_ids = recommend_collab(user_ratings, rated_anime_json["ratedAnime"], anime_set)
     return {"collab_recs": rec_ids[:20]}, 200

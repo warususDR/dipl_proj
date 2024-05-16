@@ -138,7 +138,7 @@ def recommend_similar_content_tfidf(anime_data, target_data):
 
 # collaborative filtering
 
-def generate_synthetic_ratings(average_scores, rating_scale=100, deviation_factor=8, max_rating_amount=100):
+def generate_synthetic_ratings(average_scores, rating_scale=100, deviation_factor=15, max_rating_amount=100):
     all_ratings = []
     for anime_id, avg_score in average_scores.items():
         deviations = np.random.normal(loc=0, scale=deviation_factor, size=np.random.randint(2, (max_rating_amount + 1)))
@@ -155,9 +155,24 @@ def generate_synthetic_ratings(average_scores, rating_scale=100, deviation_facto
             i += 1
     return all_ratings
 
-def recommend_collab(user_ratings, anime_data):
-    anime_data = anime_data[anime_data["mean_score"] > 70]
-    print(len(anime_data["average_score"]))
+def find_similar_anime(user_ratings, rated_anime, anime_data):
+    high_rated = list(filter(lambda entry: entry["rating"] > 6, user_ratings["ratings"]))
+    high_rated = sorted(high_rated, key=lambda item: item["updatedAt"], reverse=True)
+    if not high_rated:
+        return None
+    else:
+        if len(high_rated) > 5:
+            high_rated = high_rated[:5]
+    ids = list(map(lambda entry: entry["content_id"], high_rated))
+    interesting_anime = list(filter(lambda entry: str(entry["id"] )in ids, rated_anime))
+    similar_ids = []
+    for anime in interesting_anime:
+       similar_ids += recommend_similar_content_tfidf(anime_data, anime)[:20]
+    return list(map(lambda id: str(id), set(similar_ids)))
+        
+def recommend_collab(user_ratings, rated_anime, anime_data):
+    similar_anime_ids = find_similar_anime(user_ratings, rated_anime, anime_data)
+    anime_data = anime_data[anime_data["average_score"] > 70]
     avg_scores = anime_data["average_score"].tolist()
     ids = anime_data["id"].tolist()
     id_score = dict(zip(ids, avg_scores))
@@ -180,9 +195,11 @@ def recommend_collab(user_ratings, anime_data):
     # cross_validate(svd, dataset, measures=['RMSE', 'MAE'], cv=5, verbose=True)
     training_set = dataset.build_full_trainset()
     algorithm.fit(training_set)
-    anime_not_rated_by_user = user_anime_table.columns[~user_anime_table.loc[str(user_ratings["user_id"])].notna()]
+    anime_to_predict = user_anime_table.columns[~user_anime_table.loc[str(user_ratings["user_id"])].notna()]
+    if similar_anime_ids:
+        anime_to_predict = list(filter(lambda anime_id: anime_id in similar_anime_ids, anime_to_predict))
     predictions = []
-    for anime_id in anime_not_rated_by_user:
+    for anime_id in anime_to_predict:
         predicted_rating = algorithm.predict(str(user_ratings["user_id"]), anime_id).est
         predictions.append((anime_id, predicted_rating))
     sorted_preds = sorted(predictions, key=lambda item: item[1], reverse=True)

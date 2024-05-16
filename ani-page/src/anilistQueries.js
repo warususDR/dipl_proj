@@ -109,6 +109,18 @@ query ($ids: [Int]) {
       coverImage {
           large
       }
+      description(asHtml: false)
+      studios(isMain: true) {
+        nodes {
+          name
+        }
+      }
+      genres
+      tags {
+        id
+        name
+        description
+      }
     }  
   }
 }
