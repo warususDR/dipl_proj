@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from recommendation_algs import prepare_anime_set, recommend_by_genres, recommend_by_description, recommend_similar_content_lda,recommend_similar_content_tfidf, recommend_collab
@@ -43,7 +43,6 @@ def recommend_similar_items():
 
 @app.route("/recommend/collaborative/<user_id>", methods=["POST"])
 def recommend_collaborative(user_id):
-    print("entered here")
     try:
         user_ratings = mongo.db.userratings.find_one({ "user_id": ObjectId(user_id)})
     except Exception as err:

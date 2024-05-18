@@ -4,45 +4,18 @@ from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
 from sklearn.decomposition import LatentDirichletAllocation
 from surprise import Reader, SVD, Dataset
 from surprise.model_selection import cross_validate
+from sklearn.model_selection import GridSearchCV
 import pandas as pd
 import ast
 import numpy as np
-import nltk
 import joblib
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+import json
 
-# Initialize NLTK tools
-stop_words = set(stopwords.words('english'))
+stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
-
-'''
-anilist_api_url = 'https://graphql.anilist.co'
-top_score_anime_query = """
-    query ($page: Int) {
-        Page(page: $page, perPage: 50) {
-            media(type: ANIME, sort: SCORE_DESC) {
-                id
-                title {
-                    romaji
-                    english
-                }
-                genres
-                description
-            }
-        }
-    }
-"""
-'''
-# def fetch_best_anime(page):
-#     response = requests.post(anilist_api_url, json={"query": top_score_anime_query, "variables": {"page": page}})
-#     response_data = response.json()
-#     if response.ok and 'data' in response_data:
-#         return response_data['data']['Page']['media']
-#     else:
-#         print(f"Error fetching trending anime: {response_data}")
-#         return []
     
 def strip_html(html):
     text = re.sub('<[^<]+?>', '', html)
@@ -51,9 +24,10 @@ def strip_html(html):
 def preprocess_corpus(text):
     text = text.lower()
     text = re.sub(r'\W', ' ', text)
-    words = word_tokenize(text)
-    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words] 
-    return ' '.join(words)
+    tokens = word_tokenize(text)
+    english_words = [token for token in tokens if len(token) > 2 and token not in stop_words]
+    tokens = [lemmatizer.lemmatize(word) for word in english_words] 
+    return ' '.join(tokens)
     
 def prepare_anime_set():
     anime_set = pd.read_csv("anilist_dataset.csv")
@@ -63,7 +37,7 @@ def prepare_anime_set():
         (anime_set["status"].notna() & ~anime_set["status"].isin(["CANCELLED", "NOT_YET_RELEASED"])) &
         (anime_set["mean_score"].notna()) &
         (anime_set["average_score"].notna()) &
-        (anime_set["tags"].notna()) &
+        (anime_set["tags"].notna() & anime_set["tags"].apply(lambda x: x != "[]")) &
         (anime_set["studios"].notna()) &
         (anime_set["season_year"].notna())
     ]
@@ -83,14 +57,14 @@ def recommend_by_genres(anime_data, pref_genres):
 
 def recommend_by_description(anime_data, description):
     anime_data = anime_data[anime_data["mean_score"] > 75]
-    anime_data["cleaned_description"] = anime_data['description'].apply(lambda html_desc: strip_html(html_desc.strip()))
-    descriptions = anime_data['cleaned_description'].tolist()
+    anime_data["cleaned_description"] = anime_data["description"].apply(lambda html_desc: strip_html(html_desc.strip()))
+    descriptions = anime_data["cleaned_description"].tolist()
     descriptions.append(description)
-    ids = anime_data['id'].tolist()  
-    vectorizer = TfidfVectorizer(stop_words='english', lowercase=True)
+    ids = anime_data["id"].tolist()  
+    vectorizer = TfidfVectorizer(stop_words="english", lowercase=True, max_df=0.90, min_df=2)
     matrix = vectorizer.fit_transform(descriptions)
-    similarity = linear_kernel(matrix[-1], matrix)
-    id_sim_dict = dict(zip(ids, similarity[0][:-1]))
+    similarity = linear_kernel(matrix[-1], matrix[:-1])
+    id_sim_dict = dict(zip(ids, similarity.flatten()))
     sorted_dict = dict(sorted(id_sim_dict.items(), key=lambda item: item[1], reverse=True))
     return list(sorted_dict.keys())
 
@@ -99,9 +73,9 @@ def recommend_by_description(anime_data, description):
 def prepare_anime_soup(anime_data):
     anime_texts = []
     for _, row in anime_data.iterrows():
-        description = strip_html(row['description'].strip())
-        genres = ' '.join(ast.literal_eval(row['genres']))
-        tags_prep = map(lambda tag: (tag["name"]), ast.literal_eval(row["tags"]))
+        description = strip_html(row["description"].strip())
+        genres = ' '.join(ast.literal_eval(row["genres"]))
+        tags_prep = map(lambda tag: tag["name"], ast.literal_eval(row["tags"]))
         tags = ' '.join(list(tags_prep))
         studios_prep = map(lambda studio: studio["name"], ast.literal_eval(row["studios"]))
         studios = ' '.join(list(studios_prep))
@@ -112,7 +86,7 @@ def prepare_anime_soup(anime_data):
 def prepare_target_soup(target_data):
     target_description = strip_html(target_data["description"].strip())
     target_genres = ' '.join(target_data["genres"])
-    target_tags_prep = map(lambda tag: (tag["name"]), target_data["tags"])
+    target_tags_prep = map(lambda tag: tag["name"], target_data["tags"])
     target_tags = ' '.join(list(target_tags_prep))
     target_studios_prep = map(lambda nodes: nodes["name"], target_data["studios"]["nodes"])
     target_studios = ' '.join(list(target_studios_prep))
@@ -121,20 +95,34 @@ def prepare_target_soup(target_data):
 
 # lda
 
+def display_topics(model, feature_names, num_top_words):
+    for topic_idx, topic in enumerate(model.components_):
+        print(f"Topic {topic_idx}:")
+        print(" ".join([feature_names[i] for i in topic.argsort()[:-num_top_words - 1:-1]]))
+
+
 def recommend_similar_content_lda(anime_data, target_data, model_path='anime_lda.pkl', vectorizer_path='anime_count.pkl'):
-    anime_data = anime_data[anime_data["mean_score"] > 70]
-    anime_descriptions = anime_data["description"].tolist()
-    anime_texts = list(map(lambda desc: strip_html(desc.strip()), anime_descriptions))
-    target_text = strip_html(target_data["description"].strip())
-    corpus = anime_texts + [target_text]
-    corpus = list(map(lambda item: preprocess_corpus(item), corpus))
-    print(corpus[-1])
+    anime_data = anime_data[anime_data["mean_score"] > 75]
+    # anime_tags = list(map(lambda tag: ast.literal_eval(tag), anime_data["tags"].tolist()))
+    # all_tags = []
+    # for tag_list in anime_tags:
+    #     curr_tags = list(map(lambda tag: tag["name"], tag_list))
+    #     all_tags.append(' '.join(curr_tags))
+    # corpus = list(map(lambda item: preprocess_corpus(item), corpus))
+    target_tag = list(map(lambda tag: tag["name"], target_data["tags"]))
+    corpus = []
+    with open('preprocessed_corpus.txt', 'r', encoding='utf-8') as f:
+        corpus = f.read().split('\n')
+    corpus += [preprocess_corpus(' '.join(target_tag))]
+    print(corpus[:5])
     ids = anime_data["id"].tolist()
-    #vectorizer = CountVectorizer()
-    #matrix = vectorizer.fit_transform(corpus)
-    #lda = LatentDirichletAllocation(n_components=30, learning_method="online", random_state=0)
-    #lda.fit(matrix)
-    #lda_result = lda.transform(matrix)
+    # vectorizer = CountVectorizer(max_df=0.90, min_df=3)
+    # matrix = vectorizer.fit_transform(corpus)
+    # lda = LatentDirichletAllocation(n_components=15, learning_method="online", random_state=0, learning_decay=0.7)
+    # lda.fit(matrix)
+    # lda_result = lda.transform(matrix)
+    # joblib.dump(vectorizer, vectorizer_path)
+    # joblib.dump(lda, model_path)
     vectorizer = joblib.load(vectorizer_path)
     lda = joblib.load(model_path)
     matrix = vectorizer.transform(corpus)
@@ -147,21 +135,21 @@ def recommend_similar_content_lda(anime_data, target_data, model_path='anime_lda
 # tf-idf
 
 def recommend_similar_content_tfidf(anime_data, target_data):
-    anime_data = anime_data[anime_data["mean_score"] > 70]
+    anime_data = anime_data[anime_data["mean_score"] > 75]
     anime_texts = prepare_anime_soup(anime_data)
     target_combined_text = prepare_target_soup(target_data)
     corpus = anime_texts + [target_combined_text]
     ids = anime_data["id"].tolist()
-    vectorizer = TfidfVectorizer(stop_words='english', lowercase=True)
+    vectorizer = TfidfVectorizer(stop_words='english', lowercase=True, max_df=0.90, min_df=2)
     matrix = vectorizer.fit_transform(corpus)
-    similarity = linear_kernel(matrix[-1], matrix)
-    id_sim_dict = dict(zip(ids, similarity[0][:-1]))
+    similarity = linear_kernel(matrix[-1], matrix[:-1])
+    id_sim_dict = dict(zip(ids, similarity.flatten()))
     sorted_dict = dict(sorted(id_sim_dict.items(), key=lambda item: item[1], reverse=True))
     return list(sorted_dict.keys())
 
 # collaborative filtering
 
-def generate_synthetic_ratings(average_scores, rating_scale=100, deviation_factor=15, max_rating_amount=100):
+def generate_synthetic_ratings(average_scores, rating_scale=100, deviation_factor=12, max_rating_amount=100):
     all_ratings = []
     for anime_id, avg_score in average_scores.items():
         deviations = np.random.normal(loc=0, scale=deviation_factor, size=np.random.randint(2, (max_rating_amount + 1)))
@@ -196,12 +184,13 @@ def find_similar_anime(user_ratings, rated_anime, anime_data):
 def recommend_collab(user_ratings, rated_anime, anime_data):
     similar_anime_ids = find_similar_anime(user_ratings, rated_anime, anime_data)
     #anime_data = anime_data[anime_data["average_score"] > 70]
-    avg_scores = anime_data["average_score"].tolist()
-    ids = anime_data["id"].tolist()
-    id_score = dict(zip(ids, avg_scores))
-    ratings = generate_synthetic_ratings(id_score)
-    # for record in ratings:
-    #     print(record.items())
+    # avg_scores = anime_data["average_score"].tolist()
+    # ids = anime_data["id"].tolist()
+    # id_score = dict(zip(ids, avg_scores))
+    # ratings = generate_synthetic_ratings(id_score)
+    ratings = []
+    with open('synthethic_ratings.txt', 'r', encoding='utf-8') as f:
+        ratings = json.load(f)
     actual_ratings = []
     for rating in user_ratings["ratings"]:
         entry = {}
