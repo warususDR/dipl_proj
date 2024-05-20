@@ -1,10 +1,7 @@
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
-from sklearn.decomposition import LatentDirichletAllocation
-from surprise import Reader, SVD, Dataset
-from surprise.model_selection import cross_validate
-from sklearn.model_selection import GridSearchCV
+from surprise import Reader, Dataset, KNNBasic
 import pandas as pd
 import ast
 import numpy as np
@@ -103,26 +100,12 @@ def display_topics(model, feature_names, num_top_words):
 
 def recommend_similar_content_lda(anime_data, target_data, model_path='anime_lda.pkl', vectorizer_path='anime_count.pkl'):
     anime_data = anime_data[anime_data["mean_score"] > 75]
-    # anime_tags = list(map(lambda tag: ast.literal_eval(tag), anime_data["tags"].tolist()))
-    # all_tags = []
-    # for tag_list in anime_tags:
-    #     curr_tags = list(map(lambda tag: tag["name"], tag_list))
-    #     all_tags.append(' '.join(curr_tags))
-    # corpus = list(map(lambda item: preprocess_corpus(item), corpus))
     target_tag = list(map(lambda tag: tag["name"], target_data["tags"]))
     corpus = []
     with open('preprocessed_corpus.txt', 'r', encoding='utf-8') as f:
         corpus = f.read().split('\n')
     corpus += [preprocess_corpus(' '.join(target_tag))]
-    print(corpus[:5])
     ids = anime_data["id"].tolist()
-    # vectorizer = CountVectorizer(max_df=0.90, min_df=3)
-    # matrix = vectorizer.fit_transform(corpus)
-    # lda = LatentDirichletAllocation(n_components=15, learning_method="online", random_state=0, learning_decay=0.7)
-    # lda.fit(matrix)
-    # lda_result = lda.transform(matrix)
-    # joblib.dump(vectorizer, vectorizer_path)
-    # joblib.dump(lda, model_path)
     vectorizer = joblib.load(vectorizer_path)
     lda = joblib.load(model_path)
     matrix = vectorizer.transform(corpus)
@@ -149,7 +132,7 @@ def recommend_similar_content_tfidf(anime_data, target_data):
 
 # collaborative filtering
 
-def generate_synthetic_ratings(average_scores, rating_scale=100, deviation_factor=12, max_rating_amount=100):
+def generate_synthetic_ratings(average_scores, rating_scale=100, deviation_factor=12, max_rating_amount=50):
     all_ratings = []
     for anime_id, avg_score in average_scores.items():
         deviations = np.random.normal(loc=0, scale=deviation_factor, size=np.random.randint(2, (max_rating_amount + 1)))
@@ -182,12 +165,7 @@ def find_similar_anime(user_ratings, rated_anime, anime_data):
     return list(map(lambda id: str(id), set(similar_ids)))
         
 def recommend_collab(user_ratings, rated_anime, anime_data):
-    similar_anime_ids = find_similar_anime(user_ratings, rated_anime, anime_data)
-    #anime_data = anime_data[anime_data["average_score"] > 70]
-    # avg_scores = anime_data["average_score"].tolist()
-    # ids = anime_data["id"].tolist()
-    # id_score = dict(zip(ids, avg_scores))
-    # ratings = generate_synthetic_ratings(id_score)
+    similar_anime_ids = find_similar_anime(user_ratings, rated_anime, anime_data)    
     ratings = []
     with open('synthethic_ratings.txt', 'r', encoding='utf-8') as f:
         ratings = json.load(f)
@@ -203,8 +181,7 @@ def recommend_collab(user_ratings, rated_anime, anime_data):
     user_anime_table = pd.pivot_table(data=ratings_df, values="rating", columns="anime_id", index="user_id")
     reader = Reader(rating_scale=(0, 100))  
     dataset = Dataset.load_from_df(ratings_df[['user_id', 'anime_id', 'rating']], reader)
-    algorithm = SVD()
-    # cross_validate(svd, dataset, measures=['RMSE', 'MAE'], cv=5, verbose=True)
+    algorithm = KNNBasic(sim_options={'user_based': True})
     training_set = dataset.build_full_trainset()
     algorithm.fit(training_set)
     anime_to_predict = user_anime_table.columns[~user_anime_table.loc[str(user_ratings["user_id"])].notna()]
@@ -216,6 +193,30 @@ def recommend_collab(user_ratings, rated_anime, anime_data):
         predictions.append((anime_id, predicted_rating))
     sorted_preds = sorted(predictions, key=lambda item: item[1], reverse=True)
     return list(map(lambda pred: pred[0], sorted_preds))
+
+# used code
+
+# anime_tags = list(map(lambda tag: ast.literal_eval(tag), anime_data["tags"].tolist()))
+# all_tags = []
+# for tag_list in anime_tags:
+#     curr_tags = list(map(lambda tag: tag["name"], tag_list))
+#     all_tags.append(' '.join(curr_tags))
+# corpus = list(map(lambda item: preprocess_corpus(item), corpus))
+
+# vectorizer = CountVectorizer(max_df=0.90, min_df=3)
+# matrix = vectorizer.fit_transform(corpus)
+# lda = LatentDirichletAllocation(n_components=15, learning_method="online", random_state=0, learning_decay=0.7)
+# lda.fit(matrix)
+# lda_result = lda.transform(matrix)
+# joblib.dump(vectorizer, vectorizer_path)
+# joblib.dump(lda, model_path)
+
+#anime_data = anime_data[anime_data["average_score"] > 70]
+    # avg_scores = anime_data["average_score"].tolist()
+    # ids = anime_data["id"].tolist()
+    # id_score = dict(zip(ids, avg_scores))
+    # ratings = generate_synthetic_ratings(id_score)
+# cross_validate(svd, dataset, measures=['RMSE', 'MAE'], cv=5, verbose=True)
     
     
 
