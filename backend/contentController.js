@@ -11,7 +11,6 @@ class ContentController {
         try {
             const { content_id, rating_value } = req.body;
             const jwt_token = req.headers.authorization.split(' ')[1];
-            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
             const { id } = jwt.verify(jwt_token, secret);
             const userRatings = await db.getDocument(UserRating, { user_id: id });
             if(userRatings) {
@@ -38,7 +37,6 @@ class ContentController {
     async getRatings(req, res) {
         try {
             const jwt_token = req.headers.authorization.split(' ')[1];
-            if(!jwt_token) return res.status(400).json({ error: `No authorization token: ${error}` });
             const { id } = jwt.verify(jwt_token, secret);
             const userRatings = await db.getDocument(UserRating, { user_id: id });
             if(!userRatings) return res.status(200).json({no_rating: 'Could not find ratings for this user'});
